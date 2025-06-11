@@ -13,5 +13,5 @@ Devlog 1 6/11/25:
 
 
 Devlog 1.1 6/11/25
--implemented player sprite
--refactorized movement controls to encapsulate Player class
+- implemented player sprite
+- refactorized movement controls to encapsulate Player class
