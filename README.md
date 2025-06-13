@@ -7,7 +7,7 @@ Hello, this is S-Class Blob a game made with vanilla Java, meant as a introducti
 
 Hopefully this game turns out well enough.
 
-Devlog 1 6/11/25:
+Devlog 1.0 6/11/25:
 - initialized game window
 - initialized game loop/clock
 - drawed basic rectangle to screen
@@ -21,4 +21,6 @@ Devlog 1.1 6/11/25
 Devlog 1.2 6/13/25
 
 - implemented map tiles and map read and draw
-- 
+- added environment tiles
+- implemented player cam
+- will be redesigning world map (consider this world map as placeholder)
