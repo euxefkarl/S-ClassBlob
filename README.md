@@ -24,3 +24,8 @@ Devlog 1.2 6/13/25
 - added environment tiles
 - implemented player cam
 - will be redesigning world map (consider this world map as placeholder)
+
+Devlog 1.3 8/24/25
+
+-implemented collision detection
+-fixed infinite movement bug
