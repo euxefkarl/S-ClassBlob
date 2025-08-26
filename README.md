@@ -27,5 +27,11 @@ Devlog 1.2 6/13/25
 
 Devlog 1.3 8/24/25
 
--implemented collision detection
--fixed infinite movement bug
+- implemented collision detection
+- fixed infinite movement bug
+
+Devlog 1.4.1 8/26/25
+
+- implemented player interactable objects
+- - no functionality as of now, only spawning and placement
+

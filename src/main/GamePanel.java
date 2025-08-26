@@ -6,6 +6,7 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import javax.swing.JPanel;
+import object.SuperObject;
 import tile.TileManager;
 
 public class GamePanel extends JPanel implements Runnable{
@@ -22,11 +23,13 @@ public class GamePanel extends JPanel implements Runnable{
     Thread gameThread;
     public Player player = new Player(this,keyH);
     public CollisionChecker cChecker =  new CollisionChecker(this);
+    public AssetPlacer aPlacer = new AssetPlacer(this);
     TileManager tileM = new TileManager(this);
+    public SuperObject obj[] = new SuperObject[10];
     
     //world settings
-    public final int maxWorldCol = 50;
-    public final int maxWorldRow = 50;
+    public final int maxWorldCol = 50;//resized to 16 from 50 for testing purposes only
+    public final int maxWorldRow = 50;//resize to fit final map
     public final int maxWorldWidth = tileSize * maxWorldCol;
     public final int maxWorldHeight = tileSize * maxWorldRow;
 
@@ -41,6 +44,11 @@ public class GamePanel extends JPanel implements Runnable{
         this.setDoubleBuffered(true);
         this.addKeyListener(keyH);
         this.setFocusable(true);
+    }
+
+
+    public void setupObjects(){
+        aPlacer.setObject();
     }
 
     public void startGameThread(){
@@ -106,7 +114,13 @@ public class GamePanel extends JPanel implements Runnable{
     public void paintComponent(Graphics g){
         super.paintComponent(g);
         Graphics2D g2 = (Graphics2D)g;
+        
         tileM.drawTile(g2);
+        for(int i = 0; i<obj.length;i++){
+            if(obj[i] != null){
+                obj[i].drawObject(g2, this);
+            }
+        }
         player.draw(g2);
         g2.dispose();
     }
