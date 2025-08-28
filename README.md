@@ -35,3 +35,7 @@ Devlog 1.4.1 8/26/25
 - implemented player interactable objects
 - - no functionality as of now, only spawning and placement
 
+Devlog 1.4.2 8/27/25
+- implemented basic object interaction (object disappear once player touches them)
+- implemented ui elements, such as powerup status and messages 
+
