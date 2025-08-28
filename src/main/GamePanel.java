@@ -26,9 +26,10 @@ public class GamePanel extends JPanel implements Runnable{
     public AssetPlacer aPlacer = new AssetPlacer(this);
     TileManager tileM = new TileManager(this);
     public SuperObject obj[] = new SuperObject[10];
+    public UI ui = new UI(this);
     
     //world settings
-    public final int maxWorldCol = 50;//resized to 16 from 50 for testing purposes only
+    public final int maxWorldCol = 50;//tweak when final map is available
     public final int maxWorldRow = 50;//resize to fit final map
     public final int maxWorldWidth = tileSize * maxWorldCol;
     public final int maxWorldHeight = tileSize * maxWorldRow;
@@ -122,6 +123,7 @@ public class GamePanel extends JPanel implements Runnable{
             }
         }
         player.draw(g2);
+        ui.draw(g2, this);
         g2.dispose();
     }
 }

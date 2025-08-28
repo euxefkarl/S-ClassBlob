@@ -14,6 +14,10 @@ public class Player extends Entity{
 
     public final int screenX;
     public final int screenY;
+    public int hasItem = 0;
+    public boolean  hasFlame = false;
+    public boolean  hasWind = false;
+    public boolean hasWater = false;
 
     public Player(GamePanel gp, KeyHandler keyH){
         this.gp = gp;
@@ -92,6 +96,8 @@ public class Player extends Entity{
         //collison check
         collisionOn = false;
         gp.cChecker.checkTile(this);
+        int objIndex = gp.cChecker.checkObject(this, true);
+        pickUpObject(objIndex);
 
         if(collisionOn == false){
             switch(direction){
@@ -114,6 +120,30 @@ public class Player extends Entity{
                 spriteNum = 1;
             }
             spriteCounter = 0;
+        }
+    }
+
+    public void pickUpObject(int i){
+        if(i != 999){
+            String objectName = gp.obj[i].name;
+
+            switch(objectName){
+                case "flame":
+                    hasFlame = true;
+                    gp.obj[i] = null;
+                    gp.ui.showMessage("Acquired power of flame");
+                    break;
+                case "wind":
+                    hasWind = true;
+                    gp.obj[i] = null;
+                    gp.ui.showMessage("Acquired power of wind");
+                    break;
+                case "water":
+                    hasWater= true;
+                    gp.obj[i] = null;
+                    gp.ui.showMessage("Acquired power of water");
+                    break;
+            }
         }
     }
 
