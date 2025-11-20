@@ -39,3 +39,8 @@ Devlog 1.4.2 8/27/25
 - implemented basic object interaction (object disappear once player touches them)
 - implemented ui elements, such as powerup status and messages 
 
+Devlog 1.4.2 11/20/25
+- cleaned up codebase due to following treasure hunt format of tutorial
+- implemented rudimentary pause/play state
+- revamped map with tile editor 
+
