@@ -9,18 +9,16 @@ import main.GamePanel;
 import main.KeyHandler;
 
 public class Player extends Entity{
-    GamePanel gp;
+   
     KeyHandler keyH;
 
     public final int screenX;
     public final int screenY;
-    public int hasItem = 0;
-    public boolean  hasFlame = false;
-    public boolean  hasWind = false;
-    public boolean hasWater = false;
+    
+    
 
     public Player(GamePanel gp, KeyHandler keyH){
-        this.gp = gp;
+        super(gp);
         this.keyH = keyH;
 
         screenX = gp.screenWidth/2 - (gp.tileSize/2);
@@ -38,12 +36,19 @@ public class Player extends Entity{
     }
 
     public void setDefaultValues(){
-        worldX = gp.tileSize * 23;
-        worldY = gp.tileSize * 25;
+        // desired start tile (tile coordinates)
+        int startTileX = 2;
+        int startTileY = 47;
+
+        // convert to world pixels
+        worldX = gp.tileSize * startTileX;
+        worldY = gp.tileSize * startTileY;
         speed = 4;
         direction = "down";
-    }
 
+        
+    }
+    //load player sprites
     public void getPlayerImage(){
         try{
              
@@ -55,18 +60,7 @@ public class Player extends Entity{
             left2 = ImageIO.read(getClass().getResourceAsStream("/res/player/player_left2.png"));
             right1 = ImageIO.read(getClass().getResourceAsStream("/res/player/player_right1.png"));
             right2 = ImageIO.read(getClass().getResourceAsStream("/res/player/player_right2.png"));
-            
-            /* 
-            up1 = ImageIO.read(new File("C:\\Users\\acer\\OneDrive\\Desktop\\CODE\\S-ClassBlob\\src\\res\\player\\player_up1.png"));
-            up2 = ImageIO.read(new File("C:\\Users\\acer\\OneDrive\\Desktop\\CODE\\S-ClassBlob\\src\\res\\player\\player_up2.png"));
-            down1 = ImageIO.read(new File("C:\\Users\\acer\\OneDrive\\Desktop\\CODE\\S-ClassBlob\\src\\res\\player\\player_down1.png"));
-            down2 = ImageIO.read(new File("C:\\Users\\acer\\OneDrive\\Desktop\\CODE\\S-ClassBlob\\src\\res\\player\\player_down2.png"));
-            left1 = ImageIO.read(new File("C:\\Users\\acer\\OneDrive\\Desktop\\CODE\\S-ClassBlob\\src\\res\\player\\player_left1.png"));
-            left2 = ImageIO.read(new File("C:\\Users\\acer\\OneDrive\\Desktop\\CODE\\S-ClassBlob\\src\\res\\player\\player_left2.png"));
-            right1 = ImageIO.read(new File("C:\\Users\\acer\\OneDrive\\Desktop\\CODE\\S-ClassBlob\\src\\res\\player\\player_right1.png"));
-            right2 = ImageIO.read(new File("C:\\Users\\acer\\OneDrive\\Desktop\\CODE\\S-ClassBlob\\src\\res\\player\\player_right2.png"));
-            */
-            
+    
 
 
         }catch(IOException e){
@@ -76,6 +70,8 @@ public class Player extends Entity{
 
     }
 
+    //checks key input to change player sprite 
+    @Override
     public void update(){
         if(keyH.upPressed == true || keyH.downPressed == true 
             || keyH.leftPressed == true || keyH.rightPressed == true){
@@ -99,6 +95,10 @@ public class Player extends Entity{
         int objIndex = gp.cChecker.checkObject(this, true);
         pickUpObject(objIndex);
 
+        //check npc collision
+         int npcIndex = gp.cChecker.checkEntity(this, gp.npc);
+        interactNPC(npcIndex);
+
         if(collisionOn == false){
             switch(direction){
                 case "up": worldY -= speed; break;
@@ -111,6 +111,7 @@ public class Player extends Entity{
 
         
       }
+      //changes sprite for walking animation
       spriteCounter++;
         if(spriteCounter > 12){
             if(spriteNum == 1){
@@ -122,31 +123,26 @@ public class Player extends Entity{
             spriteCounter = 0;
         }
     }
-
+    //check npc collision
+   
+    //checks collision between pick upable objects
     public void pickUpObject(int i){
         if(i != 999){
-            String objectName = gp.obj[i].name;
-
-            switch(objectName){
-                case "flame":
-                    hasFlame = true;
-                    gp.obj[i] = null;
-                    gp.ui.showMessage("Acquired power of flame");
-                    break;
-                case "wind":
-                    hasWind = true;
-                    gp.obj[i] = null;
-                    gp.ui.showMessage("Acquired power of wind");
-                    break;
-                case "water":
-                    hasWater= true;
-                    gp.obj[i] = null;
-                    gp.ui.showMessage("Acquired power of water");
-                    break;
-            }
+           
         }
     }
-
+    public void interactNPC(int i){
+        if(i != 999){
+            if(gp.keyH.interactPressed == true){
+                gp.gameState = gp.dialogueState;
+                gp.npc[i].speak();
+            }     
+        }
+        gp.keyH.interactPressed = false;
+    }
+    
+    //draws player current sprite
+    @Override
     public void draw(Graphics2D g2){
         //g2.setColor(Color.white);
         //g2.fillRect(x, y, gp.tileSize, gp.tileSize);

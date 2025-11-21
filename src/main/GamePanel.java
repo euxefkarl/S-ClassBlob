@@ -1,5 +1,6 @@
 package main;
 
+import entity.Entity;
 import entity.Player;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -19,13 +20,14 @@ public class GamePanel extends JPanel implements Runnable{
     public final int screenWidth =  tileSize * maxScreenCol;
     public final int screenHeight = tileSize * maxScreenRow;
     
-    KeyHandler keyH = new KeyHandler();
+    //System 
+    public KeyHandler keyH = new KeyHandler(this);
     Thread gameThread;
-    public Player player = new Player(this,keyH);
+    
     public CollisionChecker cChecker =  new CollisionChecker(this);
     public AssetPlacer aPlacer = new AssetPlacer(this);
     TileManager tileM = new TileManager(this);
-    public SuperObject obj[] = new SuperObject[10];
+    
     public UI ui = new UI(this);
     
     //world settings
@@ -34,11 +36,24 @@ public class GamePanel extends JPanel implements Runnable{
     public final int maxWorldWidth = tileSize * maxWorldCol;
     public final int maxWorldHeight = tileSize * maxWorldRow;
 
+    //entity and objects
+    public Player player = new Player(this,keyH);
+    public SuperObject obj[] = new SuperObject[10];
+    public Entity npc[] = new Entity[10];
 
+
+    //gamestate
+    public int gameState;
+    public final int titleState = 0;
+    public final int playState = 1; 
+    public final int pauseState = 2;
+    public final int dialogueState = 3;
+
+    
     //FPS
     int FPS = 60;
     
-
+    //constrcutor 
     public GamePanel(){
         this.setPreferredSize(new Dimension(screenWidth, screenHeight));
         this.setBackground(Color.black);
@@ -47,11 +62,13 @@ public class GamePanel extends JPanel implements Runnable{
         this.setFocusable(true);
     }
 
-
+    //call asset placer to set world objects
     public void setupObjects(){
+        aPlacer.setNPC();
         aPlacer.setObject();
+        gameState = titleState;
     }
-
+    //starts game loop
     public void startGameThread(){
         gameThread =  new Thread(this);
         gameThread.start();
@@ -82,6 +99,8 @@ public class GamePanel extends JPanel implements Runnable{
         }
     }
 */
+
+    //override run method, this is our game clock
     @Override
     public void run(){
         double drawInterval = 1000000000/FPS;
@@ -96,6 +115,9 @@ public class GamePanel extends JPanel implements Runnable{
             timer += (currentTime - lastTime);
             lastTime = currentTime;
             if(delta>=1){
+                /*calls update and repaint 60 
+                times per second based on game 
+                clock calculation*/
                 update();
                 repaint();
                 delta--;
@@ -108,23 +130,52 @@ public class GamePanel extends JPanel implements Runnable{
             }
         }
     }
+    //call update method
     public void update(){
-        player.update();
+        if (gameState == playState){
+            player.update();
+            for(int i = 0; i < npc.length; i++){
+                if(npc[i] != null){
+                    npc[i].update();
+                }
+            }
+        }
+        if (gameState == pauseState){
+            //nothing for now
+        }
+        
     }
 
+    //draws the game graphics
+    @Override
     public void paintComponent(Graphics g){
         super.paintComponent(g);
         Graphics2D g2 = (Graphics2D)g;
-        
+        //draw titlescreen
+        if (gameState == titleState){
+            ui.draw(g2, this);
+        }
+        //otherwise draw game
+        else{
+        //draw tiles
         tileM.drawTile(g2);
-        for(int i = 0; i<obj.length;i++){
-            if(obj[i] != null){
-                obj[i].drawObject(g2, this);
+        //draw objects
+        for (SuperObject obj1 : obj) {
+            if (obj1 != null) {
+                obj1.drawObject(g2, this);
+            }
+        }
+        //draw npc
+        for (Entity npc1 : npc) {
+            if (npc1 != null) {
+                npc1.draw(g2);
             }
         }
         player.draw(g2);
         ui.draw(g2, this);
         g2.dispose();
+        }
+        
     }
 }
 

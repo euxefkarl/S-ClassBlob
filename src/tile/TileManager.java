@@ -1,6 +1,7 @@
 package tile;
 
 import java.awt.Graphics2D;
+import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -20,43 +21,45 @@ public class TileManager {
         mapTileNum = new int [gp.maxWorldCol][gp.maxWorldRow];
 
         getTileImage();
-        loadMap("/res/maps/worldmap01.txt");
+        loadMap("/res/maps/sample.txt");
     }
     
     public void getTileImage(){
         //loads tile image into tile array
         try {
-            tile[0] = new Tile();
-            tile[0].image = ImageIO.read(getClass().getResourceAsStream("/res/tiles/grass.png"));
-            
             tile[1] = new Tile();
-            tile[1].image = ImageIO.read(getClass().getResourceAsStream("/res/tiles/water.png"));
-            tile[1].collision = true;
+            tile[1].image = ImageIO.read(getClass().getResourceAsStream("/res/tiles/grass.png"));
             
-            tile[2] = new Tile();
-            tile[2].image = ImageIO.read(getClass().getResourceAsStream("/res/tiles/stone.png"));
-            tile[2].collision = true;
-
+            tile[7] = new Tile();
+            tile[7].image = ImageIO.read(getClass().getResourceAsStream("/res/tiles/water.png"));
+            tile[7].collision = true;
+            
             tile[3] = new Tile();
-            tile[3].image = ImageIO.read(getClass().getResourceAsStream("/res/tiles/tree.png"));
+            tile[3].image = ImageIO.read(getClass().getResourceAsStream("/res/tiles/stone.png"));
             tile[3].collision = true;
 
-            tile[4] = new Tile();
-            tile[4].image = ImageIO.read(getClass().getResourceAsStream("/res/tiles/sand.png"));
-
             tile[5] = new Tile();
-            tile[5].image = ImageIO.read(getClass().getResourceAsStream("/res/tiles/earth.png"));
+            tile[5].image = ImageIO.read(getClass().getResourceAsStream("/res/tiles/tree.png"));
+            tile[5].collision = true;
+
+            tile[2] = new Tile();
+            tile[2].image = ImageIO.read(getClass().getResourceAsStream("/res/tiles/sand.png"));
+
+            tile[0] = new Tile();
+            tile[0].image = ImageIO.read(getClass().getResourceAsStream("/res/tiles/earth.png"));
 
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
+    //loads map
     public void loadMap(String filePath){
         try{
             InputStream is = getClass().getResourceAsStream(filePath);
             BufferedReader br = new BufferedReader(new InputStreamReader(is));    
 
+            //loads map txt file as 2d array
             int col = 0;
             int row = 0;
             while (col<gp.maxWorldCol && row<gp.maxWorldRow){
@@ -84,9 +87,10 @@ public class TileManager {
 
         while(worldCol<gp.maxWorldCol && worldRow <gp.maxWorldRow){
             int tileNum = mapTileNum[worldCol][worldRow];
-
+            //scales fields to tile size
             int worldX = worldCol * gp.tileSize;
             int worldY = worldRow * gp.tileSize;
+            //current player location
             int screenX = worldX - gp.player.worldX + gp.player.screenX;
             int screenY =  worldY - gp.player.worldY + gp.player.screenY;
             
@@ -96,8 +100,21 @@ public class TileManager {
                worldX - gp.tileSize < gp.player.worldX + gp.player.screenX &&
                worldY + gp.tileSize > gp.player.worldY - gp.player.worldY &&
                worldY - gp.tileSize< gp.player.worldY + gp.player.worldY){
-            g2.drawImage(tile[tileNum].image,screenX,screenY, gp.tileSize,gp.tileSize,null );
-        }
+                BufferedImage tileImage = null;
+                if (tileNum >= 0 && tileNum < tile.length && tile[tileNum] != null && tile[tileNum].image != null) {
+                    tileImage = tile[tileNum].image;
+                } else {
+                    // fallback visual so you can see missing tiles on-screen
+                    tileImage = new BufferedImage(gp.tileSize, gp.tileSize, BufferedImage.TYPE_INT_ARGB);
+                    java.awt.Graphics2D tg = tileImage.createGraphics();
+                    tg.setColor(java.awt.Color.MAGENTA); // visible placeholder
+                    tg.fillRect(0, 0, gp.tileSize, gp.tileSize);
+                    tg.dispose();
+
+                    System.out.println("Warning: missing tile for index=" + tileNum + " at col=" + worldCol + " row=" + worldRow);
+                }
+                g2.drawImage(tileImage, screenX, screenY, gp.tileSize,gp.tileSize,null );
+            }
             worldCol++;
             
             if(worldCol == gp.maxWorldCol){

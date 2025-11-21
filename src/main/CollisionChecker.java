@@ -8,6 +8,7 @@ public class CollisionChecker {
         this.gp = gp;
 
     }
+    //checks location of world objects with collision on
     public void checkTile(Entity entity){
         int entityLeftWorldX = entity.worldX + entity.hitBox.x;
         int entityRightWorldX = entity.worldX + entity.hitBox.x + entity.hitBox.width;
@@ -57,6 +58,7 @@ public class CollisionChecker {
         }
 
     }
+    //checks collision between objects and entities
     public int checkObject (Entity entity, boolean player){
         int index = 999;
         for(int i = 0; i < gp.obj.length; i++){
@@ -121,5 +123,110 @@ public class CollisionChecker {
             }
         }
         return index;
+    }
+    //NPC or monster colilsion check
+    public int checkEntity(Entity entity, Entity[] target){
+        int index = 999;
+        for(int i = 0; i < target.length; i++){
+            if(target[i] != null){
+                entity.hitBox.x = entity.worldX + entity.hitBox.x;
+                entity.hitBox.y = entity.worldY + entity.hitBox.y;
+
+                target[i].hitBox.x = target[i].worldX + target[i].hitBox.x;
+                target[i].hitBox.y = target[i].worldY + target[i].hitBox.y;
+
+                switch(entity.direction){
+                    case "up":
+                        entity.hitBox.y -= entity.speed;
+                        if(entity.hitBox.intersects(target[i].hitBox)){
+                            entity.collisionOn = true;
+                            index = i;
+                        }
+                        break;
+                    case "down":
+                        entity.hitBox.y += entity.speed;
+                        if(entity.hitBox.intersects(target[i].hitBox)){
+                            entity.collisionOn = true;
+                            index = i;
+                        }
+                        break;
+                    case "left":
+                        entity.hitBox.x -= entity.speed;
+                        if(entity.hitBox.intersects(target[i].hitBox)){
+                          if(entity.hitBox.intersects(target[i].hitBox)){
+                            entity.collisionOn = true;
+                            index = i;
+                        }
+                        break;
+                        }
+                        break;
+                    case "right":   
+                        entity.hitBox.x += entity.speed;
+                        if(entity.hitBox.intersects(target[i].hitBox)){
+                            if(entity.hitBox.intersects(target[i].hitBox)){
+                                entity.collisionOn = true;
+                                index = i;
+                            }
+                            break;
+                        }
+                        break;
+                }
+                target[i].hitBox.x = target[i].defaultHitBoxX;
+                target[i].hitBox.y = target[i].defaultHitBoxY;
+                entity.hitBox.x = entity.defaultHitBoxX;
+                entity.hitBox.y = entity.defaultHitBoxY;
+           
+            }
+        }        return index;
+    }
+
+    public void checkPlayer(Entity entity){
+        entity.hitBox.x = entity.worldX + entity.hitBox.x;
+                entity.hitBox.y = entity.worldY + entity.hitBox.y;
+
+                gp.player.hitBox.x = gp.player.worldX + gp.player.hitBox.x;
+                gp.player.hitBox.y = gp.player.worldY + gp.player.hitBox.y;
+
+                switch(entity.direction){
+                    case "up":
+                        entity.hitBox.y -= entity.speed;
+                        if(entity.hitBox.intersects(gp.player.hitBox)){
+                            entity.collisionOn = true;
+                            
+                        }
+                        break;
+                    case "down":
+                        entity.hitBox.y += entity.speed;
+                        if(entity.hitBox.intersects(gp.player.hitBox)){
+                            entity.collisionOn = true;
+                            
+                        }
+                        break;
+                    case "left":
+                        entity.hitBox.x -= entity.speed;
+                        if(entity.hitBox.intersects(gp.player.hitBox)){
+                          if(entity.hitBox.intersects(gp.player.hitBox)){
+                            entity.collisionOn = true;
+                            
+                        }
+                        break;
+                        }
+                        break;
+                    case "right":   
+                        entity.hitBox.x += entity.speed;
+                        if(entity.hitBox.intersects(gp.player.hitBox)){
+                            if(entity.hitBox.intersects(gp.player.hitBox)){
+                                entity.collisionOn = true;
+                                
+                            }
+                            break;
+                        }
+                        break;
+                }
+                gp.player.hitBox.x = gp.player.defaultHitBoxX;
+                gp.player.hitBox.y = gp.player.defaultHitBoxY;
+                entity.hitBox.x = entity.defaultHitBoxX;
+                entity.hitBox.y = entity.defaultHitBoxY;
+           
     }
 }
