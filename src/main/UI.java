@@ -1,9 +1,12 @@
 package main;
 
+import entity.Entity;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
+import java.awt.image.BufferedImage;
+import object.OBJ_Heart;
 
 
 
@@ -17,10 +20,15 @@ public class UI {
     public int messageCounter = 0;
     public String currentDialogue = "";
     public int commandNum = 0;
+    BufferedImage full_life, half_life, empty_life;
    
     public UI(GamePanel gp){
         this.gp = gp;
         arial_40 = new Font("Arial", Font.PLAIN, 15);
+        Entity heart = new OBJ_Heart(gp);
+        full_life = heart.image;
+        half_life = heart.image2;
+        empty_life = heart.image3;
         
         
     }
@@ -40,12 +48,14 @@ public class UI {
             drawTitleScreen();
         }
         if(gp.gameState == gp.playState){
-            //do nothing for now
+            drawPlayerLife();
         }
         if(gp.gameState == gp.pauseState){
+            drawPlayerLife();
             drawPausedScreen();
         }
         if(gp.gameState == gp.dialogueState){
+            drawPlayerLife();
             drawDialogueScreen();
         }
             
@@ -140,6 +150,32 @@ public class UI {
         int length = (int)g2.getFontMetrics().getStringBounds(text, g2).getWidth();
         int x = gp.screenWidth/2 - length/2;
         return x;
+    }
+
+    public void drawPlayerLife(){
+        int x = gp.tileSize/2;
+        int y = gp.tileSize/2;
+        int i = 0;
+        //draw max life
+        while(i < gp.player.maxLife/2){
+            g2.drawImage(empty_life, x, y, null);
+            i++;
+            x += full_life.getWidth();
+        }
+        //reset
+        x = gp.tileSize/2;
+        y = gp.tileSize/2;
+        i = 0;
+        //draw current life
+        while(i < gp.player.life){
+            g2.drawImage(half_life, x, y, null);
+            i++;
+            if(i < gp.player.life){
+                g2.drawImage(full_life, x, y, null);
+            }
+            i++;
+            x += full_life.getWidth();
+        }
     }
         
 }

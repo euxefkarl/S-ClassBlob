@@ -7,7 +7,6 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import javax.swing.JPanel;
-import object.SuperObject;
 import tile.TileManager;
 
 public class GamePanel extends JPanel implements Runnable{
@@ -38,8 +37,9 @@ public class GamePanel extends JPanel implements Runnable{
 
     //entity and objects
     public Player player = new Player(this,keyH);
-    public SuperObject obj[] = new SuperObject[10];
+    public Entity obj[] = new Entity[10];
     public Entity npc[] = new Entity[10];
+    public Entity monster[] = new Entity[20];
 
 
     //gamestate
@@ -53,7 +53,7 @@ public class GamePanel extends JPanel implements Runnable{
     //FPS
     int FPS = 60;
     
-    //constrcutor 
+    //constructor 
     public GamePanel(){
         this.setPreferredSize(new Dimension(screenWidth, screenHeight));
         this.setBackground(Color.black);
@@ -66,6 +66,7 @@ public class GamePanel extends JPanel implements Runnable{
     public void setupObjects(){
         aPlacer.setNPC();
         aPlacer.setObject();
+        aPlacer.setMonster();
         gameState = titleState;
     }
     //starts game loop
@@ -110,6 +111,7 @@ public class GamePanel extends JPanel implements Runnable{
         long timer = 0;
         int drawCount = 0;
         while(gameThread !=  null){
+            //delta clock method
             currentTime = System.nanoTime();
             delta += (currentTime - lastTime) / drawInterval;
             timer += (currentTime - lastTime);
@@ -139,6 +141,11 @@ public class GamePanel extends JPanel implements Runnable{
                     npc[i].update();
                 }
             }
+            for(int i = 0; i < monster.length; i++){
+                if(monster[i] != null){
+                    monster[i].update();
+                }
+            }
         }
         if (gameState == pauseState){
             //nothing for now
@@ -160,15 +167,21 @@ public class GamePanel extends JPanel implements Runnable{
         //draw tiles
         tileM.drawTile(g2);
         //draw objects
-        for (SuperObject obj1 : obj) {
+        for (Entity obj1 : obj) {
             if (obj1 != null) {
-                obj1.drawObject(g2, this);
+                //obj1.drawObject(g2, this);
             }
         }
         //draw npc
         for (Entity npc1 : npc) {
             if (npc1 != null) {
                 npc1.draw(g2);
+            }
+        }
+        //draw npc
+        for (Entity monster1 : monster) {
+            if (monster1 != null) {
+                monster1.draw(g2);
             }
         }
         player.draw(g2);

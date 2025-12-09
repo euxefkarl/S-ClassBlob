@@ -1,39 +1,45 @@
-package entity;
+package monster;
 
+import entity.Entity;
 import java.io.IOException;
 import javax.imageio.ImageIO;
 import main.GamePanel;
 
-public class Villager extends  Entity{
-    
-    public Villager(GamePanel gp){
+public class MON_Goblin extends Entity{
+    public MON_Goblin(GamePanel gp){
+        
         super(gp);
+        name = "Goblin";
+        entityType = 2;
+        maxLife = 4;
+        life = maxLife;
+        speed = 1;
 
-        direction = "down";
-        speed = 2;
-      
+       
         getImage();
-        setDialogue();
-
-
     }
+
     public void getImage(){
         try{
              
-            up1 = ImageIO.read(getClass().getResourceAsStream("/res/npc/villager_up1.png"));
-            up2 = ImageIO.read(getClass().getResourceAsStream("/res/npc/villager_up2.png"));
-            down1 = ImageIO.read(getClass().getResourceAsStream("/res/npc/villager_down1.png"));
-            down2 = ImageIO.read(getClass().getResourceAsStream("/res/npc/villager_down2.png"));
-            left1 = ImageIO.read(getClass().getResourceAsStream("/res/npc/villager_left1.png"));
-            left2 = ImageIO.read(getClass().getResourceAsStream("/res/npc/villager_left2.png"));
-            right1 = ImageIO.read(getClass().getResourceAsStream("/res/npc/villager_right1.png"));
-            right2 = ImageIO.read(getClass().getResourceAsStream("/res/npc/villager_right2.png"));
+            up1 = ImageIO.read(getClass().getResourceAsStream("/res/monster/goblin_up1.png"));
+            up2 = ImageIO.read(getClass().getResourceAsStream("/res/monster/goblin_up2.png"));
+            down1 = ImageIO.read(getClass().getResourceAsStream("/res/monster/goblin_down1.png"));
+            down2 = ImageIO.read(getClass().getResourceAsStream("/res/monster/goblin_down2.png"));
+            left1 = ImageIO.read(getClass().getResourceAsStream("/res/monster/goblin_left1.png"));
+            left2 = ImageIO.read(getClass().getResourceAsStream("/res/monster/goblin_left2.png"));
+            right1 = ImageIO.read(getClass().getResourceAsStream("/res/monster/goblin_right1.png"));
+            right2 = ImageIO.read(getClass().getResourceAsStream("/res/monster/goblin_right2.png"));
+    
+
+
         }catch(IOException e){
             //e.printStackTrace();
-            System.out.println(getClass().getResource("/res/npc/villager_up1.png"));
+            System.out.println(getClass().getResource("/res/monster/goblin_up1.png"));
         }
 
-    }
+    } 
+
     @Override
     public void setAction(){
         actionLockCounter++;
@@ -79,18 +85,6 @@ public class Villager extends  Entity{
         }
     }
 
-    public void setDialogue(){
-        dialogues[0] = "Hello there!";
-        dialogues[1] = "Are you new around here?";
-        dialogues[2] = "You are going to defeat the evil blob, right?";
-        dialogues[3] = "Theres are elemental gems somewhere here.";
-        dialogues[4] = "It's no good for me, but you might need it.\nSince you're a blob and all.";
-    }
-    @Override
-    public void speak(){
-        super.speak();
-    }
-        
     
 
 }

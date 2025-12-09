@@ -44,8 +44,12 @@ Devlog 1.4.3 11/20/25
 - implemented rudimentary pause/play state
 - revamped map with tile editor 
 
-Devlop 1.5 11/21/25
+Devlog 1.5 11/21/25
 - implemented npc dialogue
 - implemented title screen
 - cleaned up game states
 
+Devlog 1.6 12/10/25
+- added 1st monster class: goblins
+- added life mechanic (no death yet)
+- clean up collision checker code readbility

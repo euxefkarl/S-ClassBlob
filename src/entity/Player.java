@@ -1,5 +1,6 @@
 package entity;
 
+import java.awt.AlphaComposite;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
@@ -46,6 +47,10 @@ public class Player extends Entity{
         speed = 4;
         direction = "down";
 
+        //player status
+        maxLife = 6;
+        life = maxLife;
+
         
     }
     //load player sprites
@@ -74,7 +79,7 @@ public class Player extends Entity{
     @Override
     public void update(){
         if(keyH.upPressed == true || keyH.downPressed == true 
-            || keyH.leftPressed == true || keyH.rightPressed == true){
+            || keyH.leftPressed == true || keyH.rightPressed == true || keyH.interactPressed == true){
 
             if(keyH.upPressed){
                 direction = "up";
@@ -94,12 +99,13 @@ public class Player extends Entity{
         gp.cChecker.checkTile(this);
         int objIndex = gp.cChecker.checkObject(this, true);
         pickUpObject(objIndex);
-
         //check npc collision
          int npcIndex = gp.cChecker.checkEntity(this, gp.npc);
         interactNPC(npcIndex);
-
-        if(collisionOn == false){
+        //check monster collision
+        int monsterIndex = gp.cChecker.checkEntity(this, gp.monster);
+        contactMonster(monsterIndex);
+        if(collisionOn == false && keyH.interactPressed == false){
             switch(direction){
                 case "up": worldY -= speed; break;
                 case "down": worldY += speed; break;
@@ -108,6 +114,7 @@ public class Player extends Entity{
 
             }
         }
+        gp.keyH.interactPressed = false;
 
         
       }
@@ -121,6 +128,14 @@ public class Player extends Entity{
                 spriteNum = 1;
             }
             spriteCounter = 0;
+        }
+        //invincibility timer
+        if (invincible == true) {
+            invinceCounter++;
+            if (invinceCounter > 60) {
+                invincible = false;
+                invinceCounter = 0;
+            }
         }
     }
     //check npc collision
@@ -138,9 +153,19 @@ public class Player extends Entity{
                 gp.npc[i].speak();
             }     
         }
-        gp.keyH.interactPressed = false;
+        
     }
-    
+    public void contactMonster(int i){
+        if(i != 999){
+            //damage player
+            if (invincible == false) {
+                life -= 1;
+                invincible = true;
+                invinceCounter = 0;
+            }
+    ;
+        }
+    }
     //draws player current sprite
     @Override
     public void draw(Graphics2D g2){
@@ -183,7 +208,12 @@ public class Player extends Entity{
                 }
             }
         }
+        //make player transparent when invincible
+        if (invincible == true){
+            g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.2f));
+        }
         g2.drawImage(image, screenX, screenY, gp.tileSize, gp.tileSize, null);
+        g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f));
     }
 
 }

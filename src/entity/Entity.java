@@ -3,24 +3,36 @@ package entity;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import main.GamePanel;
+import main.UtilityTool;
 
 public class Entity {
 
-    GamePanel gp;
+    public GamePanel gp;
     //set commmon constants and variables
+    public BufferedImage image, image2, image3;
+    public String name;
+    public boolean collision = false;
     public int worldX, worldY;
     public int speed;
     public BufferedImage up1,up2,down1,down2,left1,left2,right1,right2;
-    public String direction;
+    public String direction = "down";
     public int spriteCounter = 0;
     public int spriteNum = 1;
-    public Rectangle hitBox = new Rectangle(0,0,24,24);
+    public Rectangle hitBox = new Rectangle(0,0,32,32);
     public int defaultHitBoxX;
     public int defaultHitBoxY;
     public boolean collisionOn = false;
     public int actionLockCounter = 0;
+    public int invinceCounter = 0;
+    public boolean invincible = false;
     String[] dialogues = new String[20];
     public int dialogueIndex = 0;
+    public UtilityTool uTool = new UtilityTool();
+    public int entityType; // 0 = player, 1 = npc, 2 = monster
+
+    //character status
+    public int maxLife;
+    public int life;
 
 
     public Entity(GamePanel gp){
@@ -32,7 +44,18 @@ public class Entity {
         collisionOn = false;
         gp.cChecker.checkTile(this);
         gp.cChecker.checkObject(this, false);
-        gp.cChecker.checkPlayer(this);
+        gp.cChecker.checkEntity(this, gp.npc);
+        gp.cChecker.checkEntity(this, gp.monster);
+        boolean contactPlayer = gp.cChecker.checkPlayer(this);
+
+        if (this.entityType == 2 && contactPlayer) {
+            // Monster contacts player
+            if (gp.player.invincible == false) {
+                gp.player.life -= 1;
+                gp.player.invincible = true;
+                gp.player.invinceCounter = 0;
+            }
+        }
         
         if(collisionOn == false){
             switch(direction){
