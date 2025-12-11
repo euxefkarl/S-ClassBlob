@@ -8,12 +8,8 @@ public class OBJ_wind extends SuperObject{
     
     public OBJ_wind(GamePanel gp){
         super(gp);
-        name = "flame";
-        try {
-            image = ImageIO.read(getClass().getResourceAsStream("/res/objects/OBJ_wind1.png"));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        name = "Wind";
+        image = setup("/res/objects/OBJ_wind1", gp.tileSize, gp.tileSize);
 
     }
 }

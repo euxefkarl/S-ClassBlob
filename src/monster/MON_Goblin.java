@@ -1,8 +1,6 @@
 package monster;
 
 import entity.Entity;
-import java.io.IOException;
-import javax.imageio.ImageIO;
 import main.GamePanel;
 
 public class MON_Goblin extends Entity{
@@ -11,7 +9,7 @@ public class MON_Goblin extends Entity{
         super(gp);
         name = "Goblin";
         entityType = 2;
-        maxLife = 4;
+        maxLife = 10;
         life = maxLife;
         speed = 1;
 
@@ -20,24 +18,14 @@ public class MON_Goblin extends Entity{
     }
 
     public void getImage(){
-        try{
-             
-            up1 = ImageIO.read(getClass().getResourceAsStream("/res/monster/goblin_up1.png"));
-            up2 = ImageIO.read(getClass().getResourceAsStream("/res/monster/goblin_up2.png"));
-            down1 = ImageIO.read(getClass().getResourceAsStream("/res/monster/goblin_down1.png"));
-            down2 = ImageIO.read(getClass().getResourceAsStream("/res/monster/goblin_down2.png"));
-            left1 = ImageIO.read(getClass().getResourceAsStream("/res/monster/goblin_left1.png"));
-            left2 = ImageIO.read(getClass().getResourceAsStream("/res/monster/goblin_left2.png"));
-            right1 = ImageIO.read(getClass().getResourceAsStream("/res/monster/goblin_right1.png"));
-            right2 = ImageIO.read(getClass().getResourceAsStream("/res/monster/goblin_right2.png"));
-    
-
-
-        }catch(IOException e){
-            //e.printStackTrace();
-            System.out.println(getClass().getResource("/res/monster/goblin_up1.png"));
-        }
-
+            up1 = setup("/res/monster/goblin_up1", gp.tileSize, gp.tileSize);
+            up2 = setup("/res/monster/goblin_up2", gp.tileSize, gp.tileSize);
+            down1 = setup("/res/monster/goblin_down1", gp.tileSize, gp.tileSize);
+            down2 = setup("/res/monster/goblin_down2", gp.tileSize, gp.tileSize);
+            left1 = setup("/res/monster/goblin_left1", gp.tileSize, gp.tileSize);
+            left2 = setup("/res/monster/goblin_left2", gp.tileSize, gp.tileSize);
+            right1 = setup("/res/monster/goblin_right1", gp.tileSize, gp.tileSize);
+            right2 = setup("/res/monster/goblin_right2", gp.tileSize, gp.tileSize);
     } 
 
     @Override
@@ -83,6 +71,11 @@ public class MON_Goblin extends Entity{
             if(worldX + speed <= maxX) direction = "right";
             else direction = "left";
         }
+    }
+    @Override
+    public void damageReaction(){
+        actionLockCounter = 0;
+        direction = gp.player.direction;
     }
 
     

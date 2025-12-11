@@ -1,7 +1,5 @@
 package entity;
 
-import java.io.IOException;
-import javax.imageio.ImageIO;
 import main.GamePanel;
 
 public class Villager extends  Entity{
@@ -18,21 +16,15 @@ public class Villager extends  Entity{
 
     }
     public void getImage(){
-        try{
-             
-            up1 = ImageIO.read(getClass().getResourceAsStream("/res/npc/villager_up1.png"));
-            up2 = ImageIO.read(getClass().getResourceAsStream("/res/npc/villager_up2.png"));
-            down1 = ImageIO.read(getClass().getResourceAsStream("/res/npc/villager_down1.png"));
-            down2 = ImageIO.read(getClass().getResourceAsStream("/res/npc/villager_down2.png"));
-            left1 = ImageIO.read(getClass().getResourceAsStream("/res/npc/villager_left1.png"));
-            left2 = ImageIO.read(getClass().getResourceAsStream("/res/npc/villager_left2.png"));
-            right1 = ImageIO.read(getClass().getResourceAsStream("/res/npc/villager_right1.png"));
-            right2 = ImageIO.read(getClass().getResourceAsStream("/res/npc/villager_right2.png"));
-        }catch(IOException e){
-            //e.printStackTrace();
-            System.out.println(getClass().getResource("/res/npc/villager_up1.png"));
-        }
-
+      
+            up1 = setup("/res/npc/villager_up1", gp.tileSize, gp.tileSize);
+            up2 = setup("/res/npc/villager_up2", gp.tileSize, gp.tileSize);
+            down1 = setup("/res/npc/villager_down1", gp.tileSize, gp.tileSize);
+            down2 = setup("/res/npc/villager_down2", gp.tileSize, gp.tileSize);
+            left1 = setup("/res/npc/villager_left1", gp.tileSize, gp.tileSize);
+            left2 = setup("/res/npc/villager_left2", gp.tileSize, gp.tileSize);
+            right1 = setup("/res/npc/villager_right1", gp.tileSize, gp.tileSize);
+            right2 = setup("/res/npc/villager_right2", gp.tileSize, gp.tileSize);
     }
     @Override
     public void setAction(){

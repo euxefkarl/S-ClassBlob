@@ -22,7 +22,28 @@ public class KeyHandler implements KeyListener{
     public void keyPressed(KeyEvent e) {
         int code = e.getKeyCode();
         if(gp.gameState == gp.titleState){
-            if(code == KeyEvent.VK_W){
+            titleState(code);
+        }
+        //playstate
+        else if(gp.gameState == gp.playState){
+            playState(code);
+        }
+
+        //pause state
+        else if(gp.gameState == gp.pauseState){
+            pauseState(code);
+        }
+        //dialogue state
+        else if(gp.gameState == gp.dialogueState){
+            dialogueState(code);
+        }
+        else if(gp.gameState == gp.statusScreenState){
+            statusState(code);
+        }
+        
+    }
+    public void titleState(int code){
+        if(code == KeyEvent.VK_W){
                 gp.ui.commandNum--;
                 if(gp.ui.commandNum < 0){
                     gp.ui.commandNum = 2;
@@ -45,45 +66,32 @@ public class KeyHandler implements KeyListener{
                     System.exit(0);
                 }
             }
-        }
-        
-        //playstate
-        if(gp.gameState == gp.playState){
-            if (code == KeyEvent.VK_W){
-            upPressed = true;
-        }
-        if (code == KeyEvent.VK_A){
-            leftPressed = true;
-        }
-        if (code == KeyEvent.VK_S){
-            downPressed = true;
-        }
-        if (code == KeyEvent.VK_D){
-            rightPressed = true;            
-        }
-        if (code == KeyEvent.VK_P){
-            gp.gameState = gp.pauseState;
-            }
+    }
+    public void dialogueState(int code){
         if (code == KeyEvent.VK_F){
-            interactPressed = true;
-            }
-        }
-
-        //pause state
-        else if(gp.gameState == gp.pauseState){
-             if (code == KeyEvent.VK_P){
-            gp.gameState = gp.playState;
-            }
-
-        }
-        //dialogue state
-        else if(gp.gameState == gp.dialogueState){
-            if (code == KeyEvent.VK_F){
                 gp.ui.currentDialogue = "";
                 gp.gameState = gp.playState;
             }
-        }
-        
+    }
+    public void pauseState(int code){
+          if (code == KeyEvent.VK_P){
+            gp.gameState = gp.playState;
+            }
+    }
+    public void statusState(int code){
+         if(code == KeyEvent.VK_E){
+                gp.gameState = gp.playState;
+            }
+    }
+
+    public void playState(int code){
+        if (code == KeyEvent.VK_W){upPressed = true;}
+            if (code == KeyEvent.VK_A){leftPressed = true;}
+            if (code == KeyEvent.VK_S){downPressed = true;}
+            if (code == KeyEvent.VK_D){rightPressed = true;}
+            if (code == KeyEvent.VK_P){gp.gameState = gp.pauseState;}
+            if (code == KeyEvent.VK_SPACE || code == KeyEvent.VK_F){interactPressed = true;}
+            if (code == KeyEvent.VK_E){gp.gameState = gp.statusScreenState;}
     }
 
     @Override

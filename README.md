@@ -53,3 +53,8 @@ Devlog 1.6 12/10/25
 - added 1st monster class: goblins
 - added life mechanic (no death yet)
 - clean up collision checker code readbility
+
+Devlog 1.7 12/12/25
+- added player status
+- added monster death and death animation
+- added monster health bar 
