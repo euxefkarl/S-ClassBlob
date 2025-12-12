@@ -3,10 +3,19 @@
 
 Hello, this is S-Class Blob a game made with vanilla Java, meant as a introduction to OOP and Java for me. 
 
-*Credits to RyiSnow's BBA tutorial*
+*Credits to RyiSnow's BBA tutorial for being the backbone of this project*
 
 Hopefully this game turns out well enough.
 
+# Controls
+- WASD - Directional Movement/Window Navigation
+- E - Status Screen
+- F or Space - Interact/Attack
+- P - Pause
+- C - Skill/Item Use
+- Q - Swap Form
+
+# Devlogs
 Devlog 1.0 6/11/25:
 - initialized game window
 - initialized game loop/clock
