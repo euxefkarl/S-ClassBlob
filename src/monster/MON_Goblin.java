@@ -8,12 +8,14 @@ public class MON_Goblin extends Entity{
         
         super(gp);
         name = "Goblin";
-        entityType = 2;
-        maxLife = 10;
+        attackDamage = 2;
+        defense = 0;
+        entityType = typeMonster;
+        maxLife = 5;
         life = maxLife;
         speed = 1;
+        exp = 2;
 
-       
         getImage();
     }
 

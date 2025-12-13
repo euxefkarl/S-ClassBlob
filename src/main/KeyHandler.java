@@ -4,7 +4,8 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
 public class KeyHandler implements KeyListener{
-    public boolean upPressed, downPressed, leftPressed, rightPressed, interactPressed;
+    public boolean upPressed, downPressed, leftPressed, rightPressed, interactPressed, abilityPressed;
+    boolean  showDebug;
 
     GamePanel gp;
     
@@ -41,6 +42,7 @@ public class KeyHandler implements KeyListener{
             statusState(code);
         }
         
+        
     }
     public void titleState(int code){
         if(code == KeyEvent.VK_W){
@@ -66,9 +68,10 @@ public class KeyHandler implements KeyListener{
                     System.exit(0);
                 }
             }
+            
     }
     public void dialogueState(int code){
-        if (code == KeyEvent.VK_F){
+        if (code == KeyEvent.VK_F || code == KeyEvent.VK_SPACE){
                 gp.ui.currentDialogue = "";
                 gp.gameState = gp.playState;
             }
@@ -79,9 +82,26 @@ public class KeyHandler implements KeyListener{
             }
     }
     public void statusState(int code){
-         if(code == KeyEvent.VK_E){
+        if(code == KeyEvent.VK_E){
                 gp.gameState = gp.playState;
             }
+        if(code == KeyEvent.VK_W){
+                if(gp.ui.slotRow !=0){gp.ui.slotRow--;}
+            }
+        if(code == KeyEvent.VK_A){
+                if(gp.ui.slotCol !=0){gp.ui.slotCol--;}
+            }
+        if(code == KeyEvent.VK_S){
+                if(gp.ui.slotRow != 3){gp.ui.slotRow++;}
+            }
+        if(code == KeyEvent.VK_D){
+                if(gp.ui.slotCol !=4){gp.ui.slotCol++;}
+            }
+        if(code == KeyEvent.VK_SPACE){gp.player.selectItem();}
+    }
+    public void showDebugTextint(int code){
+        if(showDebug == true){showDebug = false;}
+        else if (showDebug == false){showDebug = true;}
     }
 
     public void playState(int code){
@@ -90,8 +110,10 @@ public class KeyHandler implements KeyListener{
             if (code == KeyEvent.VK_S){downPressed = true;}
             if (code == KeyEvent.VK_D){rightPressed = true;}
             if (code == KeyEvent.VK_P){gp.gameState = gp.pauseState;}
-            if (code == KeyEvent.VK_SPACE || code == KeyEvent.VK_F){interactPressed = true;}
+            if (code == KeyEvent.VK_SPACE){interactPressed = true;}
             if (code == KeyEvent.VK_E){gp.gameState = gp.statusScreenState;}
+            if(code == KeyEvent.VK_T){showDebugTextint(code);}
+            if(code == KeyEvent.VK_F){abilityPressed = true;}
     }
 
     @Override

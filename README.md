@@ -9,10 +9,11 @@ Hopefully this game turns out well enough.
 
 # Controls
 - WASD - Directional Movement/Window Navigation
+- Enter - Title Screen confirmation
 - E - Status Screen
-- F or Space - Interact/Attack
+- Space - Interact/Attack
 - P - Pause
-- C - Skill/Item Use
+- F - Skill
 - Q - Swap Form
 
 # Devlogs
@@ -67,3 +68,10 @@ Devlog 1.7 12/12/25
 - added player status
 - added monster death and death animation
 - added monster health bar 
+
+Devlog 1.8 12/14/25
+- added inventory
+- added status window
+- added form change (flame only for now)
+- added projectiles (flame ability)
+- bug fixes

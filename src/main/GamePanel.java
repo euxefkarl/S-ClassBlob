@@ -4,8 +4,12 @@ import entity.Entity;
 import entity.Player;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import javax.swing.JPanel;
 import tile.TileManager;
 
@@ -39,7 +43,9 @@ public class GamePanel extends JPanel implements Runnable{
     public Player player = new Player(this,keyH);
     public Entity obj[] = new Entity[10];
     public Entity npc[] = new Entity[10];
-    public Entity monster[] = new Entity[20];
+    public Entity monster[] = new Entity[40];
+    ArrayList<Entity> entityList = new ArrayList<>();
+    public ArrayList<Entity> projectileList = new ArrayList<>();
 
 
     //gamestate
@@ -75,32 +81,6 @@ public class GamePanel extends JPanel implements Runnable{
         gameThread =  new Thread(this);
         gameThread.start();
     }
-/* 
-    @Override
-    public void run() {
-        //game clock uses thread sleep method
-        double drawInterval = 1000000000/FPS;
-        double nextDrawTime = System.nanoTime() + drawInterval;
-        while(gameThread != null){
-        
-            update();
-            repaint();
-        try{
-            double remainingTime = nextDrawTime - System.nanoTime();
-            remainingTime = remainingTime/1000000;
-            if(remainingTime < 0){
-                remainingTime = 0;
-            }
-            Thread.sleep((long) remainingTime);
-
-            nextDrawTime += drawInterval;
-        }
-        catch(InterruptedException e){
-            e.printStackTrace();
-        }
-        }
-    }
-*/
 
     //override run method, this is our game clock
     @Override
@@ -148,6 +128,23 @@ public class GamePanel extends JPanel implements Runnable{
                     if(monster[i].alive == false){monster[i] = null;}
                 }
             }
+            for(int i = 0; i < obj.length; i++){
+                if(obj[i] != null){
+                    obj[i].update();
+                }
+            }
+             for(int i = 0; i < projectileList.size(); i++){
+                if(projectileList.get(i) != null){
+                    if(projectileList.get(i).alive == true){
+                        projectileList.get(i).update();
+                        
+                    }
+                    if(projectileList.get(i).alive == false){
+                        projectileList.remove(i);
+                        
+                    }
+                }
+            }
         }
         if (gameState == pauseState){
             //nothing for now
@@ -166,29 +163,65 @@ public class GamePanel extends JPanel implements Runnable{
         }
         //otherwise draw game
         else{
-        //draw tiles
-        tileM.drawTile(g2);
-        //draw objects
-        for (Entity obj1 : obj) {
-            if (obj1 != null) {
-                //obj1.drawObject(g2, this);
+            //draw tiles
+            tileM.drawTile(g2);
+            //add player
+            entityList.add(player);
+            //add other entities to entity list
+            for (Entity npc1 : npc) {
+                if (npc1 != null) {
+                    entityList.add(npc1);
+                }
             }
-        }
-        //draw npc
-        for (Entity npc1 : npc) {
-            if (npc1 != null) {
-                npc1.draw(g2);
+           
+            for (Entity obj1 : obj) {
+                if (obj1 != null) {
+                    entityList.add(obj1);
+                }
+            }      
+            for (Entity monster1 : monster) {
+                if (monster1 != null) {
+                    entityList.add(monster1);
+                }
             }
-        }
-        //draw npc
-        for (Entity monster1 : monster) {
-            if (monster1 != null) {
-                monster1.draw(g2);
+            for (Entity projectile1 : projectileList) {
+                if (projectile1 != null) {
+                    entityList.add(projectile1);
+                }
             }
+        Collections.sort(entityList, new Comparator<Entity>() {
+            @Override
+            public int compare(Entity e1,Entity e2){
+                int result = Integer.compare(e1.worldY, e2.worldY);
+                return result;
+            }
+        });
+
+        //draw entity
+        for (int i = 0; i < entityList.size(); i++) {
+            entityList.get(i).draw(g2);
         }
-        player.draw(g2);
+        //empty entity list
+        entityList.clear();
         ui.draw(g2, this);
-        g2.dispose();
+
+        //debug text for dev purposes only
+        if(keyH.showDebug == true){
+            g2.setFont(new Font("arial",Font.PLAIN, 20));
+            int x = 10;
+            int y = 400;
+            int lineHeight = 20;
+            g2.drawString("World X" + player.worldX, x, y);
+            y+=lineHeight;
+            g2.drawString("World Y" + player.worldY, x, y);
+            y+=lineHeight;
+            g2.drawString("Col" + (player.worldX + player.hitBox.x)/tileSize, x, y);
+            y+=lineHeight;
+            g2.drawString("Row" + (player.worldY + player.hitBox.y)/tileSize, x, y);
+        }
+
+
+            g2.dispose();
         }
         
     }

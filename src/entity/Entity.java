@@ -23,6 +23,7 @@ public class Entity {
     public int defaultHitBoxX;
     public int defaultHitBoxY;
     String[] dialogues = new String[20];
+    String text;
     
     //counters
     public int actionLockCounter = 0;
@@ -47,7 +48,7 @@ public class Entity {
     //character status
     public int maxLife;
     public int life;
-    public int entityType; // 0 = player, 1 = npc, 2 = monster
+    public int entityType; // 0 = player, 1 = npc, 2 = monster, 3 = form change item
     public String name;
     public int speed;
     public int level;
@@ -61,10 +62,17 @@ public class Entity {
     public int nextLevelExp;
     public Entity currentForm;
     public int damageAmp;
+    public Projectile projectile;
 
     //item attributes
     public int itemAttackDamage;
     public int itemDefense;
+    public String description ="";
+
+    //entity types
+    public final int typeMonster = 2;
+    public final int typeForm = 3;
+    public final int typeConsumable = 4;
 
     public Entity(GamePanel gp){
         this.gp = gp;
@@ -79,10 +87,12 @@ public class Entity {
         gp.cChecker.checkEntity(this, gp.monster);
         boolean contactPlayer = gp.cChecker.checkPlayer(this);
 
-        if (this.entityType == 2 && contactPlayer) {
+        if (this.entityType == 2 && contactPlayer == true) {
             // Monster contacts player
             if (gp.player.invincible == false) {
-                gp.player.life -= 1;
+                int damage = attackDamage - gp.player.defense;
+                if(damage<0){damage = 0;}
+                gp.player.life -= damage;
                 gp.player.invincible = true;
                 gp.player.invinceCounter = 0;
             }
@@ -137,11 +147,11 @@ public class Entity {
 
 
 
-    public void draw(java.awt.Graphics2D g2){
+    public void draw(Graphics2D g2){
         int screenX = worldX - gp.player.worldX + gp.player.screenX;
         int screenY =  worldY - gp.player.worldY + gp.player.screenY;
         BufferedImage image = null;
-
+        
             //improve rendering performance by only rendering screen pixels, not entire map
         if(worldX + gp.tileSize > gp.player.worldX - gp.player.screenX && 
             worldX - gp.tileSize < gp.player.worldX + gp.player.screenX &&
@@ -167,7 +177,7 @@ public class Entity {
                 }
             }
             //monster hp
-            if(entityType == 2 && hpBarOn == true){
+            if(entityType == typeMonster && hpBarOn == true){
                 double oneScale =gp.tileSize / maxLife;
                 double hpBar = oneScale * life;
                 g2.setColor(new Color(35,35,35));
@@ -180,8 +190,6 @@ public class Entity {
                     hpBarOn = false;
                 }
             }
-            
-
             if (invincible == true){
                 hpBarOn = true;
                 hpBarCounter = 0;
@@ -207,7 +215,6 @@ public class Entity {
         if(dyingCounter > i*6 && dyingCounter <= i*7){changeAlpha(g2, 0f);}
         if(dyingCounter > i*7 && dyingCounter <= i*8){changeAlpha(g2, 1f);}
         if(dyingCounter>i*8){
-            dying = false;
             alive = false;
         }
     }
