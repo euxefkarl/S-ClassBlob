@@ -71,7 +71,6 @@ Devlog 1.7 12/12/25
 
 Devlog 1.8 12/14/25
 - added inventory
-- added status window
-- added form change (flame only for now)
-- added projectiles (flame ability)
+- added form change (item equips)
+- added projectiles (item ability)
 - bug fixes
