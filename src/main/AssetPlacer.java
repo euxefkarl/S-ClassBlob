@@ -2,8 +2,10 @@ package main;
 
 import entity.Villager;
 import monster.MON_Goblin;
+import object.OBJ_LifeGem;
 import object.OBJ_flame;
 import object.OBJ_water;
+import object.OBJ_wind;
 
 public class AssetPlacer {
     GamePanel gp;
@@ -21,14 +23,21 @@ public class AssetPlacer {
       gp.obj[i].worldX = gp.tileSize * 7;
       gp.obj[i].worldY = gp.tileSize * 44;
       i++;
-     
+      gp.obj[i] = new OBJ_LifeGem(gp);
+      gp.obj[i].worldX = gp.tileSize * 9;
+      gp.obj[i].worldY = gp.tileSize * 44;
+      i++;
+      gp.obj[i] = new OBJ_wind(gp);
+      gp.obj[i].worldX = gp.tileSize * 10;
+      gp.obj[i].worldY = gp.tileSize * 44;
+      i++;
 
     }
 
     public void setNPC(){
         gp.npc[0] = new Villager(gp);
         // x 43 y 43
-        gp.npc[0].worldX = gp.tileSize * 43;
+        gp.npc[0].worldX = gp.tileSize * 9;
         gp.npc[0].worldY = gp.tileSize * 43;
     }
     public void setMonster(){

@@ -74,3 +74,8 @@ Devlog 1.8 12/14/25
 - added form change (item equips)
 - added projectiles (item ability)
 - bug fixes
+
+Devlog 1.9 12/16/25
+- added pathfinding ai to npc (will add to monsters next)
+- added item drops
+- finalized form changes and form abilities (knockback, heal, dmg multiplier)

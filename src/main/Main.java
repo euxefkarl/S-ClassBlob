@@ -3,6 +3,7 @@ package main;
 import javax.swing.JFrame;
 
 public class Main {
+
     public static void main(String[] args) {
         //setup of jframe window
         JFrame window = new JFrame();
@@ -13,7 +14,6 @@ public class Main {
         GamePanel gamePanel = new GamePanel();
         window.add(gamePanel);
         window.pack();
-
 
         window.setLocationRelativeTo(null);
         window.setVisible(true);

@@ -8,6 +8,8 @@ import java.util.ArrayList;
 import main.GamePanel;
 import main.KeyHandler;
 import object.OBJ_Fireball;
+import object.OBJ_Tornado;
+import object.OBJ_Wave;
 
 public class Player extends Entity {
 
@@ -47,7 +49,8 @@ public class Player extends Entity {
         // convert to world pixels
         worldX = gp.tileSize * startTileX;
         worldY = gp.tileSize * startTileY;
-        speed = 4;
+        defaultSpeed = 4;
+        speed = defaultSpeed;
         direction = "down";
 
         //player status
@@ -64,8 +67,12 @@ public class Player extends Entity {
         currentForm = null;
         attackDamage = getAttack();
         defense = getDefense();
-        projectile = new OBJ_Fireball(gp);
-        projectile.alive = false;
+        fireball = new OBJ_Fireball(gp);
+        fireball.alive = false;
+        wave = new OBJ_Wave(gp);
+        wave.alive = false;
+        tornado = new OBJ_Tornado(gp);
+        tornado.alive = false;
 
     }
 
@@ -208,18 +215,10 @@ public class Player extends Entity {
             int currentHitBoxHeight = hitBox.height;
 
             switch (direction) {
-                case "up":
-                    worldY -= hitBox.height;
-                    break;
-                case "down":
-                    worldY += hitBox.height;
-                    break;
-                case "left":
-                    worldX -= hitBox.width;
-                    break;
-                case "right":
-                    worldX += hitBox.width;
-                    break;
+                case "up" -> worldY -= hitBox.height;
+                case "down" -> worldY += hitBox.height;
+                case "left" -> worldX -= hitBox.width;
+                case "right" -> worldX += hitBox.width;
             }
             //modify hitbox to be attacking hitbox
             hitBox.width = attackHitBox.width;
@@ -283,7 +282,8 @@ public class Player extends Entity {
                 changeCurrentForm(selectedItem);
             }
             if (selectedItem.entityType == typeConsumable) {
-                //later
+                selectedItem.use(this);
+                inventory.remove(itemIndex);
             }
         }
     }
@@ -297,7 +297,8 @@ public class Player extends Entity {
                 changeFlame();
             case "Water Gem" ->
                 changeWater();
-            //case "Wind": changeWind();break;
+            case "Wind Gem" ->
+                changeWind();
 
         }
     }
@@ -322,22 +323,6 @@ public class Player extends Entity {
         attackRight2 = setup("/res/player/flame_right_atk2", gp.tileSize * 2, gp.tileSize);
     }
 
-    public void flameAbility() {
-        if (projectile.alive == false) {
-            projectile.set(worldX, worldY, direction, true, this);
-            gp.projectileList.add(projectile);
-            System.out.println("fireball");
-        }
-
-    }
-
-    public void waterAbility() {
-
-    }
-
-    public void windAbility() {
-    }
-
     public void changeWater() {
         up1 = setup("/res/player/water_up1", gp.tileSize, gp.tileSize);
         up2 = setup("/res/player/water_up2", gp.tileSize, gp.tileSize);
@@ -347,7 +332,69 @@ public class Player extends Entity {
         left2 = setup("/res/player/water_left2", gp.tileSize, gp.tileSize);
         right1 = setup("/res/player/water_right1", gp.tileSize, gp.tileSize);
         right2 = setup("/res/player/water_right2", gp.tileSize, gp.tileSize);
+
+        attackUp1 = setup("/res/player/water_up_atk1", gp.tileSize, gp.tileSize * 2);
+        attackUp2 = setup("/res/player/water_up_atk2", gp.tileSize, gp.tileSize * 2);
+        attackDown1 = setup("/res/player/water_down_atk1", gp.tileSize, gp.tileSize * 2);
+        attackDown2 = setup("/res/player/water_down_atk2", gp.tileSize, gp.tileSize * 2);
+        attackLeft1 = setup("/res/player/water_left_atk1", gp.tileSize * 2, gp.tileSize);
+        attackLeft2 = setup("/res/player/water_left_atk2", gp.tileSize * 2, gp.tileSize);
+        attackRight1 = setup("/res/player/water_right_atk1", gp.tileSize * 2, gp.tileSize);
+        attackRight2 = setup("/res/player/water_right_atk2", gp.tileSize * 2, gp.tileSize);
     }
+
+    public void changeWind() {
+        up1 = setup("/res/player/wind_up1", gp.tileSize, gp.tileSize);
+        up2 = setup("/res/player/wind_up2", gp.tileSize, gp.tileSize);
+        down1 = setup("/res/player/wind_down1", gp.tileSize, gp.tileSize);
+        down2 = setup("/res/player/wind_down2", gp.tileSize, gp.tileSize);
+        left1 = setup("/res/player/wind_left1", gp.tileSize, gp.tileSize);
+        left2 = setup("/res/player/wind_left2", gp.tileSize, gp.tileSize);
+        right1 = setup("/res/player/wind_right1", gp.tileSize, gp.tileSize);
+        right2 = setup("/res/player/wind_right2", gp.tileSize, gp.tileSize);
+
+        attackUp1 = setup("/res/player/wind_up_atk1", gp.tileSize, gp.tileSize * 2);
+        attackUp2 = setup("/res/player/wind_up_atk2", gp.tileSize, gp.tileSize * 2);
+        attackDown1 = setup("/res/player/wind_down_atk1", gp.tileSize, gp.tileSize * 2);
+        attackDown2 = setup("/res/player/wind_down_atk2", gp.tileSize, gp.tileSize * 2);
+        attackLeft1 = setup("/res/player/wind_left_atk1", gp.tileSize * 2, gp.tileSize);
+        attackLeft2 = setup("/res/player/wind_left_atk2", gp.tileSize * 2, gp.tileSize);
+        attackRight1 = setup("/res/player/wind_right_atk1", gp.tileSize * 2, gp.tileSize);
+        attackRight2 = setup("/res/player/wind_right_atk2", gp.tileSize * 2, gp.tileSize);
+    }
+
+    public void flameAbility() {
+        if (fireball.alive == false) {
+            fireball.set(worldX, worldY, direction, true, this);
+            gp.projectileList.add(fireball);
+        }
+
+    }
+
+    public void waterAbility() {
+        if (wave.alive == false) {
+            wave.set(worldX, worldY, direction, true, this);
+            gp.projectileList.add(wave);
+
+        }
+    }
+
+    public void windAbility() {
+        if (tornado.alive == false) {
+            tornado.set(worldX, worldY, direction, true, this);
+            gp.projectileList.add(tornado);
+
+        }
+    }
+
+    public void knockBack(Entity entity){
+        entity.direction = direction;
+        entity.speed += 10;
+        entity.knockBack = true;
+        System.out.println("knocked back");
+    }
+
+    
 
     //checks collision between pick upable objects
     public void pickUpObject(int i) {
