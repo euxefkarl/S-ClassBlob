@@ -55,6 +55,7 @@ public class GamePanel extends JPanel implements Runnable {
     public final int dialogueState = 3;
     public final int statusScreenState = 4;
     public final int gameOverState = 5;
+    public final int gameWinState = 6;
 
     //FPS
     int FPS = 60;

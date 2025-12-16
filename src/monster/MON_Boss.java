@@ -4,14 +4,13 @@ import entity.Entity;
 import main.GamePanel;
 
 public class MON_Boss extends Entity {
-
+    
     public MON_Boss(GamePanel gp) {
-
         super(gp);
         this.gp = gp;
         name = "Evil Blob";
         attackDamage = 10;
-        defense = 5;
+        defense = 2;
         entityType = typeMonster;
         maxLife = 50;
         life = maxLife;

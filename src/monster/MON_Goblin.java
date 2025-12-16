@@ -18,7 +18,7 @@ public class MON_Goblin extends Entity {
         life = maxLife;
         defaultSpeed = 2;
         speed = defaultSpeed;
-        exp = 2;
+        exp = 5;
 
         getImage();
     }

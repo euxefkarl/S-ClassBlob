@@ -284,7 +284,7 @@ public class Entity {
                 }
                 break;
             case "right":
-                if (gp.player.getCenterY() > getCenterY() && yDis < straight && xDis < horizontal) {
+                if (gp.player.worldX > worldX && xDis < straight && yDis < horizontal) {
                     targetInRange = true;
                 }
                 break;
@@ -544,7 +544,13 @@ public class Entity {
                 changeAlpha(g2, 0.4f);
             }
             if (dying == true) {
-                dyingAnimation(g2);
+                if (name.equals("Boss")) {
+                    dyingAnimation(g2);
+                    gp.gameState = gp.gameWinState;
+                } else {
+                    dyingAnimation(g2);
+                }
+
             }
 
             // Use the actual image dimensions (already scaled in setup) so larger sprites render correctly
@@ -552,28 +558,41 @@ public class Entity {
             int drawHeight = (image != null) ? image.getHeight() : gp.tileSize;
 
             // Adjust screen offsets when attack/visuals extend beyond one tile
-            if (attacking) {
+            if (attacking && name.equals("Evil Blob")) {
                 switch (direction) {
-                    case "up":
+                    case "up" -> {
                         // when attacking up the sprite may extend above the base tile
-                        tempScreenY = screenY - (drawHeight - gp.tileSize);
-                        break;
-                    case "left":
+                        tempScreenY = screenY - (gp.tileSize*2);
+                    }
+                    case "left" -> {
                         // when attacking left the sprite may extend to the left
-                        tempScreenX = screenX - (drawWidth - gp.tileSize);
-                        break;
+                        tempScreenX = screenX - (gp.tileSize*2);
+                    }
+                    // for down/right the default alignment generally places the sprite correctly
+                }
+            }else if(attacking){
+                switch (direction) {
+                    case "up" -> {
+                        // when attacking up the sprite may extend above the base tile
+                        tempScreenY = screenY - (gp.tileSize);
+                    }
+                    case "left" -> {
+                        // when attacking left the sprite may extend to the left
+                        tempScreenX = screenX - (gp.tileSize);
+                    }
                     // for down/right the default alignment generally places the sprite correctly
                 }
             }
 
             g2.drawImage(image, tempScreenX, tempScreenY, drawWidth, drawHeight, null);
             changeAlpha(g2, 1f);
-
             // Debug: draw hitboxes when debug mode is enabled
             if (gp.keyH.showDebug) {
                 // Normal hitbox (cyan, semi-transparent)
-                int hbX = tempScreenX + hitBox.x;
-                int hbY = tempScreenY + hitBox.y;
+                // Use the entity's base screen coordinates (screenX/screenY) so hitbox stays aligned
+                // with the entity's logical position even when the sprite image is offset for attack visuals.
+                int hbX = screenX + hitBox.x;
+                int hbY = screenY + hitBox.y;
                 java.awt.Color hbFill = new java.awt.Color(0, 255, 255, 80);
                 g2.setColor(hbFill);
                 g2.fillRect(hbX, hbY, hitBox.width, hitBox.height);
@@ -618,6 +637,7 @@ public class Entity {
                     g2.drawRect(ahX, ahY, ahW, ahH);
                 }
             }
+
         }
     }
 
@@ -687,16 +707,19 @@ public class Entity {
             int eTopY = worldY + hitBox.y;
             int eBotY = worldY + hitBox.y + hitBox.height;
 
-            if (eTopY > nextY && eLeftX >= nextX && eRightX < nextX + gp.tileSize) {
+            // Determine overlap between entity and the target tile area
+            boolean overlapsVertically = !(eBotY <= nextY || eTopY >= nextY + gp.tileSize);
+            boolean overlapsHorizontally = !(eRightX <= nextX || eLeftX >= nextX + gp.tileSize);
+
+            if (eTopY > nextY && overlapsHorizontally) {
                 direction = "up";
-            } else if (eTopY < nextY && eLeftX >= nextX && eRightX < nextX + gp.tileSize) {
+            } else if (eTopY < nextY && overlapsHorizontally) {
                 direction = "down";
-            } else if (eTopY >= nextY && eBotY < nextY + gp.tileSize) {
-                //left or right
+            } else if (overlapsVertically) {
+                // left or right when the vertical ranges overlap
                 if (eLeftX > nextX) {
                     direction = "left";
-                }
-                if (eLeftX < nextX) {
+                } else if (eLeftX < nextX) {
                     direction = "right";
                 }
             } else if (eTopY > nextY && eLeftX > nextX) {

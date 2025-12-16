@@ -68,6 +68,15 @@ public class AssetPlacer {
         gp.monster[i].worldX = gp.tileSize * 6;
         gp.monster[i].worldY = gp.tileSize * 34;
         i++;
+        gp.monster[i] = new MON_Orc(gp);
+        gp.monster[i].worldX = gp.tileSize * 7;
+        gp.monster[i].worldY = gp.tileSize * 34;
+        i++;
+        gp.monster[i] = new MON_Orc(gp);
+        gp.monster[i].worldX = gp.tileSize * 9;
+        gp.monster[i].worldY = gp.tileSize * 34;
+        i++;
+        //44 , 2
         gp.monster[i] = new MON_Boss(gp);
         gp.monster[i].worldX = gp.tileSize * 44;
         gp.monster[i].worldY = gp.tileSize * 2;

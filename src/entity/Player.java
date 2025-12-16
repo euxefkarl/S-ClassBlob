@@ -52,7 +52,7 @@ public class Player extends Entity {
         defaultSpeed = 4;
         speed = defaultSpeed;
         direction = "down";
-
+        name = "Player";
         //player status
         maxLife = 6;
         life = maxLife;
@@ -199,12 +199,10 @@ public class Player extends Entity {
                 invinceCounter = 0;
             }
         }
-        if(life <= 0){
+        if (life <= 0) {
             gp.gameState = gp.gameOverState;
         }
     }
-
-    
 
     public void damageMonster(int i, Entity attacker) {
         if (i != 999) {
@@ -227,15 +225,23 @@ public class Player extends Entity {
     }
 
     public void checkLevelUp() {
-        if (exp >= nextLevelExp) {
+        // Allow carrying over excess EXP and handle multiple level-ups
+        while (exp >= nextLevelExp) {
+            // consume required EXP for this level-up
+            exp -= nextLevelExp;
+
+            // level up rewards
             level++;
-            nextLevelExp += nextLevelExp * 1.5;
             maxLife += 2;
             life += 1;
             strength++;
             agility++;
             attackDamage = getAttack();
             defense = getDefense();
+
+            // increase requirement for next level (same growth as before)
+            nextLevelExp += nextLevelExp * 1.2;
+
         }
     }
 
@@ -254,11 +260,13 @@ public class Player extends Entity {
     }
 
     public void cycleForm() {
-        if (inventory.isEmpty()) return;
-        
+        if (inventory.isEmpty()) {
+            return;
+        }
+
         Entity nextForm = null;
         boolean foundCurrent = false;
-        
+
         // Look for next form after current
         for (Entity item : inventory) {
             if (item.entityType == typeForm) {
@@ -271,7 +279,7 @@ public class Player extends Entity {
                 }
             }
         }
-        
+
         // If no form found after current, cycle to first form
         if (nextForm == null) {
             for (Entity item : inventory) {
@@ -281,7 +289,7 @@ public class Player extends Entity {
                 }
             }
         }
-        
+
         if (nextForm != null) {
             changeCurrentForm(nextForm);
         }

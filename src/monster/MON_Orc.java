@@ -19,7 +19,7 @@ public class MON_Orc extends Entity {
         life = maxLife;
         defaultSpeed = 2;
         speed = defaultSpeed;
-        exp = 10;
+        exp = 15;
         motion1Duration = 40;
         motion2Duration = 85;
         hitBox.x = 4;
