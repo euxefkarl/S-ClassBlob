@@ -26,7 +26,7 @@ public class Projectile extends Entity {
             if (monsterIndex != 999) {
                 switch (name) {
                     case "Fireball" -> {
-                        gp.player.damageMonster(monsterIndex);
+                        gp.player.damageMonster(monsterIndex, this);
                         alive = false;
                     }
                     case "Wave" -> {
@@ -37,7 +37,7 @@ public class Projectile extends Entity {
                         alive = false;
                     }
                     case "Tornado" -> {
-                        gp.player.knockBack(gp.monster[monsterIndex]);
+                        gp.player.knockBack(gp.monster[monsterIndex], this);
                         alive = false;
                     }
 

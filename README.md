@@ -79,3 +79,9 @@ Devlog 1.9 12/16/25
 - added pathfinding ai to npc (will add to monsters next)
 - added item drops
 - finalized form changes and form abilities (knockback, heal, dmg multiplier)
+
+Devlog 2.0 12/16/25
+- added Final Boss
+- added game over screen
+- cleaned up code
+- debug hitbox bugs

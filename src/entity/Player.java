@@ -64,6 +64,8 @@ public class Player extends Entity {
         damageAmp = 1;
         exp = 0;
         nextLevelExp = 5;
+        motion1Duration = 5;
+        motion2Duration = 25;
         currentForm = null;
         attackDamage = getAttack();
         defense = getDefense();
@@ -197,51 +199,14 @@ public class Player extends Entity {
                 invinceCounter = 0;
             }
         }
+        if(life <= 0){
+            gp.gameState = gp.gameOverState;
+        }
     }
 
-    public void attack() {
+    
 
-        spriteCounter++;
-
-        if (spriteCounter <= 5) {
-            spriteNum = 1;
-        }
-        if (spriteCounter > 5 && spriteCounter <= 25) {
-            spriteNum = 2;
-            //save current hitbox and position
-            int currentWorldX = worldX;
-            int currentWorldY = worldY;
-            int currentHitBoxWidth = hitBox.width;
-            int currentHitBoxHeight = hitBox.height;
-
-            switch (direction) {
-                case "up" -> worldY -= hitBox.height;
-                case "down" -> worldY += hitBox.height;
-                case "left" -> worldX -= hitBox.width;
-                case "right" -> worldX += hitBox.width;
-            }
-            //modify hitbox to be attacking hitbox
-            hitBox.width = attackHitBox.width;
-            hitBox.height = attackHitBox.height;
-            //check collision
-            int monsterIndex = gp.cChecker.checkEntity(this, gp.monster);
-            damageMonster(monsterIndex);
-            worldX = currentWorldX;
-            worldY = currentWorldY;
-            hitBox.width = currentHitBoxWidth;
-            hitBox.height = currentHitBoxHeight;
-        }
-
-        if (spriteCounter > 25) {
-            spriteNum = 1;
-            spriteCounter = 0;
-            attacking = false;
-
-        }
-
-    }
-
-    public void damageMonster(int i) {
+    public void damageMonster(int i, Entity attacker) {
         if (i != 999) {
             if (gp.monster[i].invincible == false && gp.monster[i].dying == false) {
                 int damage = attackDamage - gp.monster[i].defense;
@@ -285,6 +250,40 @@ public class Player extends Entity {
                 selectedItem.use(this);
                 inventory.remove(itemIndex);
             }
+        }
+    }
+
+    public void cycleForm() {
+        if (inventory.isEmpty()) return;
+        
+        Entity nextForm = null;
+        boolean foundCurrent = false;
+        
+        // Look for next form after current
+        for (Entity item : inventory) {
+            if (item.entityType == typeForm) {
+                if (foundCurrent) {
+                    nextForm = item;
+                    break;
+                }
+                if (item == currentForm) {
+                    foundCurrent = true;
+                }
+            }
+        }
+        
+        // If no form found after current, cycle to first form
+        if (nextForm == null) {
+            for (Entity item : inventory) {
+                if (item.entityType == typeForm) {
+                    nextForm = item;
+                    break;
+                }
+            }
+        }
+        
+        if (nextForm != null) {
+            changeCurrentForm(nextForm);
         }
     }
 
@@ -386,15 +385,6 @@ public class Player extends Entity {
 
         }
     }
-
-    public void knockBack(Entity entity){
-        entity.direction = direction;
-        entity.speed += 10;
-        entity.knockBack = true;
-        System.out.println("knocked back");
-    }
-
-    
 
     //checks collision between pick upable objects
     public void pickUpObject(int i) {

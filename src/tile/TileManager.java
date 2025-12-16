@@ -98,8 +98,8 @@ public class TileManager {
             //improve rendering performance by only rendering screen pixels, not entire map
             if (worldX + gp.tileSize > gp.player.worldX - gp.player.screenX
                     && worldX - gp.tileSize < gp.player.worldX + gp.player.screenX
-                    && worldY + gp.tileSize > gp.player.worldY - gp.player.worldY
-                    && worldY - gp.tileSize < gp.player.worldY + gp.player.worldY) {
+                    && worldY + gp.tileSize > gp.player.worldY - gp.player.screenY
+                    && worldY - gp.tileSize < gp.player.worldY + gp.player.screenY) {
                 BufferedImage tileImage = null;
                 if (tileNum >= 0 && tileNum < tile.length && tile[tileNum] != null && tile[tileNum].image != null) {
                     tileImage = tile[tileNum].image;

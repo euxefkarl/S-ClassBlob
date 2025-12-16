@@ -93,7 +93,7 @@ public class Villager extends Entity {
         dialogues[2] = "You are going to defeat the evil blob, right?";
         dialogues[3] = "Theres are elemental gems somewhere here.";
         dialogues[4] = "It's no good for me, but you might need it.\nSince you're a blob and all.";
-        dialogues[5] = "I know the location of one. Theres monsters there though. \n Follow me";
+        dialogues[5] = "I know the location of one. \nTheres monsters there though. \n Follow me";
     }
 
     @Override

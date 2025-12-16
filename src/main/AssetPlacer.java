@@ -1,8 +1,9 @@
 package main;
 
 import entity.Villager;
+import monster.MON_Boss;
 import monster.MON_Goblin;
-import object.OBJ_LifeGem;
+import monster.MON_Orc;
 import object.OBJ_flame;
 import object.OBJ_water;
 import object.OBJ_wind;
@@ -16,20 +17,16 @@ public class AssetPlacer {
     public void setObject(){
       int i = 0;
       gp.obj[i] = new OBJ_flame(gp);
-      gp.obj[i].worldX = gp.tileSize * 8;
-      gp.obj[i].worldY = gp.tileSize * 44;
+      gp.obj[i].worldX = gp.tileSize * 45;
+      gp.obj[i].worldY = gp.tileSize * 36;
       i++;
       gp.obj[i] = new OBJ_water(gp);
-      gp.obj[i].worldX = gp.tileSize * 7;
-      gp.obj[i].worldY = gp.tileSize * 44;
-      i++;
-      gp.obj[i] = new OBJ_LifeGem(gp);
-      gp.obj[i].worldX = gp.tileSize * 9;
-      gp.obj[i].worldY = gp.tileSize * 44;
+      gp.obj[i].worldX = gp.tileSize * 21;
+      gp.obj[i].worldY = gp.tileSize * 27;
       i++;
       gp.obj[i] = new OBJ_wind(gp);
-      gp.obj[i].worldX = gp.tileSize * 10;
-      gp.obj[i].worldY = gp.tileSize * 44;
+      gp.obj[i].worldX = gp.tileSize * 19;
+      gp.obj[i].worldY = gp.tileSize * 10;
       i++;
 
     }
@@ -62,6 +59,18 @@ public class AssetPlacer {
         gp.monster[i] = new MON_Goblin(gp);
         gp.monster[i].worldX = gp.tileSize * 45;
         gp.monster[i].worldY = gp.tileSize * 45;
+        i++;
+        gp.monster[i] = new MON_Orc(gp);
+        gp.monster[i].worldX = gp.tileSize * 3;
+        gp.monster[i].worldY = gp.tileSize * 30;
+        i++;
+        gp.monster[i] = new MON_Orc(gp);
+        gp.monster[i].worldX = gp.tileSize * 6;
+        gp.monster[i].worldY = gp.tileSize * 34;
+        i++;
+        gp.monster[i] = new MON_Boss(gp);
+        gp.monster[i].worldX = gp.tileSize * 44;
+        gp.monster[i].worldY = gp.tileSize * 2;
         i++;
     }
 }

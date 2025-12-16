@@ -4,8 +4,8 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
 public class KeyHandler implements KeyListener{
-    public boolean upPressed, downPressed, leftPressed, rightPressed, interactPressed, abilityPressed;
-    boolean  showDebug;
+    public boolean upPressed, downPressed, leftPressed, rightPressed, interactPressed, abilityPressed, changeFormPressed;
+    public boolean showDebug;
 
     GamePanel gp;
     
@@ -40,6 +40,9 @@ public class KeyHandler implements KeyListener{
         }
         else if(gp.gameState == gp.statusScreenState){
             statusState(code);
+        }
+        else if(gp.gameState == gp.gameOverState){
+            gameOverState(code);
         }
         
         
@@ -99,9 +102,35 @@ public class KeyHandler implements KeyListener{
             }
         if(code == KeyEvent.VK_SPACE){gp.player.selectItem();}
     }
+
+    public void gameOverState(int code){
+        if(code == KeyEvent.VK_W){
+            gp.ui.commandNum --;
+            if(gp.ui.commandNum < 0){
+                gp.ui.commandNum = 1;
+            }
+        }
+        if(code == KeyEvent.VK_S){
+            gp.ui.commandNum ++;
+            if(gp.ui.commandNum > 1){
+                gp.ui.commandNum = 0;
+            }
+        }
+        if(code == KeyEvent.VK_ENTER){
+            if(gp.ui.commandNum == 0){
+                gp.gameState = gp.playState;
+                gp.retry();
+
+            }
+            if(gp.ui.commandNum == 1){
+                System.exit(0);
+            }
+        }
+        
+    }
     public void showDebugTextint(int code){
-        if(showDebug == true){showDebug = false;}
-        else if (showDebug == false){showDebug = true;}
+        if(showDebug == true){gp.player.invincible = false;showDebug = false;}
+        else if (showDebug == false){gp.player.invincible = true;showDebug = true;}
     }
 
     public void playState(int code){
@@ -114,6 +143,7 @@ public class KeyHandler implements KeyListener{
             if (code == KeyEvent.VK_E){gp.gameState = gp.statusScreenState;}
             if(code == KeyEvent.VK_T){showDebugTextint(code);}
             if(code == KeyEvent.VK_F){abilityPressed = true;}
+            if(code == KeyEvent.VK_Q){gp.player.cycleForm();}
     }
 
     @Override
