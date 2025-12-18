@@ -1,85 +1,80 @@
 package main;
 
+import entity.Entity;
 import entity.Villager;
-import monster.MON_Boss;
-import monster.MON_Goblin;
-import monster.MON_Orc;
+import monster.Boss;
+import monster.Goblin;
+import monster.Orc;
 import object.OBJ_flame;
 import object.OBJ_water;
 import object.OBJ_wind;
 
 public class AssetPlacer {
     GamePanel gp;
-    public AssetPlacer(GamePanel gp){
+
+    public AssetPlacer(GamePanel gp) {
         this.gp = gp;
-
-    }
-    public void setObject(){
-      int i = 0;
-      gp.obj[i] = new OBJ_flame(gp);
-      gp.obj[i].worldX = gp.tileSize * 45;
-      gp.obj[i].worldY = gp.tileSize * 36;
-      i++;
-      gp.obj[i] = new OBJ_water(gp);
-      gp.obj[i].worldX = gp.tileSize * 21;
-      gp.obj[i].worldY = gp.tileSize * 27;
-      i++;
-      gp.obj[i] = new OBJ_wind(gp);
-      gp.obj[i].worldX = gp.tileSize * 19;
-      gp.obj[i].worldY = gp.tileSize * 10;
-      i++;
-
     }
 
-    public void setNPC(){
-        gp.npc[0] = new Villager(gp);
-        // x 43 y 43
-        gp.npc[0].worldX = gp.tileSize * 9;
-        gp.npc[0].worldY = gp.tileSize * 43;
+    //place objects
+    public void setObject() {
+        placeObject(new OBJ_flame(gp), 45, 36);
+        placeObject(new OBJ_water(gp), 21, 27);
+        placeObject(new OBJ_wind(gp), 19, 10);
     }
-    public void setMonster(){
-        int i = 0;
-        gp.monster[i] = new MON_Goblin(gp);
-        // x 20 y 20
-        gp.monster[i].worldX = gp.tileSize * 45;
-        gp.monster[i].worldY = gp.tileSize * 43;
-        i++;
-        gp.monster[i] = new MON_Goblin(gp);
-        gp.monster[i].worldX = gp.tileSize * 45;
-        gp.monster[i].worldY = gp.tileSize * 40;
-        i++;
-        gp.monster[i] = new MON_Goblin(gp);
-        gp.monster[i].worldX = gp.tileSize * 45;
-        gp.monster[i].worldY = gp.tileSize * 42;
-        i++;
-        gp.monster[i] = new MON_Goblin(gp);
-        gp.monster[i].worldX = gp.tileSize * 45;
-        gp.monster[i].worldY = gp.tileSize * 39;
-        i++;
-        gp.monster[i] = new MON_Goblin(gp);
-        gp.monster[i].worldX = gp.tileSize * 45;
-        gp.monster[i].worldY = gp.tileSize * 45;
-        i++;
-        gp.monster[i] = new MON_Orc(gp);
-        gp.monster[i].worldX = gp.tileSize * 3;
-        gp.monster[i].worldY = gp.tileSize * 30;
-        i++;
-        gp.monster[i] = new MON_Orc(gp);
-        gp.monster[i].worldX = gp.tileSize * 6;
-        gp.monster[i].worldY = gp.tileSize * 34;
-        i++;
-        gp.monster[i] = new MON_Orc(gp);
-        gp.monster[i].worldX = gp.tileSize * 7;
-        gp.monster[i].worldY = gp.tileSize * 34;
-        i++;
-        gp.monster[i] = new MON_Orc(gp);
-        gp.monster[i].worldX = gp.tileSize * 9;
-        gp.monster[i].worldY = gp.tileSize * 34;
-        i++;
-        //44 , 2
-        gp.monster[i] = new MON_Boss(gp);
-        gp.monster[i].worldX = gp.tileSize * 44;
-        gp.monster[i].worldY = gp.tileSize * 2;
-        i++;
+
+    private void placeObject(Entity obj, int tileX, int tileY) {
+        for (int i = 0; i < gp.obj.length; i++) {
+            if (gp.obj[i] == null) {
+                gp.obj[i] = obj;
+                gp.obj[i].worldX = gp.tileSize * tileX;
+                gp.obj[i].worldY = gp.tileSize * tileY;
+                break;
+            }
+        }
+    }
+
+   //place npcs
+    public void setNPC() {
+        String [] dialog = {"Dialog"};
+        placeNPC(new Villager(gp, 9* gp.tileSize, 43* gp.tileSize, dialog), 9, 43);
+    }
+
+    private void placeNPC(Entity npcEntity, int tileX, int tileY) {
+        for (int i = 0; i < gp.npc.length; i++) {
+            if (gp.npc[i] == null) {
+                gp.npc[i] = npcEntity;
+                gp.npc[i].worldX = gp.tileSize * tileX;
+                gp.npc[i].worldY = gp.tileSize * tileY;
+                break;
+            }
+        }
+    }
+
+    //place monsters
+    public void setMonster() {
+        placeMonster(new Goblin(gp), 45, 43);
+        placeMonster(new Goblin(gp), 45, 40);
+        placeMonster(new Goblin(gp), 45, 42);
+        placeMonster(new Goblin(gp), 45, 39);
+        placeMonster(new Goblin(gp), 45, 45);
+
+        placeMonster(new Orc(gp), 3, 30);
+        placeMonster(new Orc(gp), 6, 34);
+        placeMonster(new Orc(gp), 7, 34);
+        placeMonster(new Orc(gp), 9, 34);
+
+        placeMonster(new Boss(gp), 44, 2);
+    }
+
+    private void placeMonster(Entity monsterEntity, int tileX, int tileY) {
+        for (int i = 0; i < gp.monster.length; i++) {
+            if (gp.monster[i] == null) {
+                gp.monster[i] = monsterEntity;
+                gp.monster[i].worldX = gp.tileSize * tileX;
+                gp.monster[i].worldY = gp.tileSize * tileY;
+                break;
+            }
+        }
     }
 }
