@@ -1,104 +1,80 @@
 package entity;
 
+import java.util.Random;
 import main.GamePanel;
 
 public class Villager extends Entity {
 
-    public Villager(GamePanel gp) {
+    private final String[] dialogue;
+    private int dialogueIndex = 0;
+    private final Random random = new Random();
+    private int actionLockCounter = 0;
+
+    public Villager(GamePanel gp, int worldX, int worldY, String[] dialogue) {
         super(gp);
-        direction = "down";
-        speed = 2;
-        getImage();
-        setDialogue();
-
+        this.worldX = worldX;
+        this.worldY = worldY;
+        this.dialogue = dialogue;
+        this.name = "Villager";
+        this.entityType = typeNPC;
+        collision = true;
+        speed = 1;
+        loadSprite();
     }
 
-    public void getImage() {
-
-        up1 = setup("/res/npc/villager_up1", gp.tileSize, gp.tileSize);
-        up2 = setup("/res/npc/villager_up2", gp.tileSize, gp.tileSize);
-        down1 = setup("/res/npc/villager_down1", gp.tileSize, gp.tileSize);
-        down2 = setup("/res/npc/villager_down2", gp.tileSize, gp.tileSize);
-        left1 = setup("/res/npc/villager_left1", gp.tileSize, gp.tileSize);
-        left2 = setup("/res/npc/villager_left2", gp.tileSize, gp.tileSize);
-        right1 = setup("/res/npc/villager_right1", gp.tileSize, gp.tileSize);
-        right2 = setup("/res/npc/villager_right2", gp.tileSize, gp.tileSize);
+    private void loadSprite() {
+        loadMovementSprites("/res/npc/villager", gp.tileSize, gp.tileSize);
     }
 
     @Override
-    public void setAction() {
-        if (onPath == true) {
-            int goalCol = 41;
-            int goalRow = 39;
-            searchPath(goalCol, goalRow);
-        } else {
-            actionLockCounter++;
-            if (actionLockCounter == 120) { //change direction every 2 seconds
-                chooseDirection();
-                actionLockCounter = 0;
-            }
-        }
-
+    public void update() {
+        if (!alive) return;
+        setAction();
+        moveEntity();
+        animate();
     }
 
-    public void chooseDirection() {
-        int i = (int) (Math.random() * 100) + 1; //pick random number from 1 to 100
-        // restrict movement area
-        int minCol = 37;
-        int maxCol = 44;
-        int minRow = 34;
-        int maxRow = 48;
+    private void setAction() {
+        actionLockCounter++;
+        if (actionLockCounter >= 120) {
+            int i = random.nextInt(4);
+            direction = switch (i) {
+                case 0 -> "up";
+                case 1 -> "down";
+                case 2 -> "left";
+                default -> "right";
+            };
+            actionLockCounter = 0;
+        }
+    }
 
-        //scale to world coordinates
-        int tileSize = gp.tileSize;
-        int minX = minCol * tileSize;
-        int maxX = (maxCol + 1) * tileSize;
-        int minY = minRow * tileSize;
-        int maxY = (maxRow + 1) * tileSize;
+    private void moveEntity() {
+        collisionOn = false;
+        gp.cChecker.checkTile(this);
+        gp.cChecker.checkEntity(this, gp.npc,true);
 
-        if (i <= 25) {
-            // try move up, otherwise pick down to stay inside area
-            if (worldY - speed >= minY) {
-                direction = "up";
-            } else {
-                direction = "down";
-            }
-        } else if (i > 25 && i <= 50) {
-            // try move down, otherwise pick up
-            if (worldY + speed <= maxY) {
-                direction = "down";
-            } else {
-                direction = "up";
-            }
-        } else if (i > 50 && i <= 75) {
-            // try move left, otherwise pick right
-            if (worldX - speed >= minX) {
-                direction = "left";
-            } else {
-                direction = "right";
-            }
-        } else { // 76-100
-            // try move right, otherwise pick left
-            if (worldX + speed <= maxX) {
-                direction = "right";
-            } else {
-                direction = "left";
+        if (!collisionOn) {
+            switch (direction) {
+                case "up" -> worldY -= speed;
+                case "down" -> worldY += speed;
+                case "left" -> worldX -= speed;
+                case "right" -> worldX += speed;
             }
         }
     }
 
-    public void setDialogue() {
-        dialogues[0] = "Hello there!";
-        dialogues[1] = "Are you new around here?";
-        dialogues[2] = "You are going to defeat the evil blob, right?";
-        dialogues[3] = "Theres are elemental gems somewhere here.";
-        dialogues[4] = "It's no good for me, but you might need it.\nSince you're a blob and all.";
-        dialogues[5] = "I know the location of one. \nTheres monsters there though. \n Follow me";
+    private void animate() {
+        spriteCounter++;
+        if (spriteCounter > 30) {
+            spriteNum = (spriteNum == 1) ? 2 : 1;
+            spriteCounter = 0;
+        }
     }
 
-    @Override
     public void speak() {
-        super.speak();
+        if (dialogueIndex < dialogue.length) {
+            gp.ui.showMessage(dialogue[dialogueIndex]);
+            dialogueIndex++;
+        } else dialogueIndex = 0;
     }
-
 }

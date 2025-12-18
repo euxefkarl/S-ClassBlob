@@ -2,9 +2,11 @@ package entity;
 
 import main.GamePanel;
 
-public class Projectile extends Entity {
+public abstract class Projectile extends Entity {
 
-    Entity user;
+    protected Entity user;
+    protected int life;
+    protected int maxLife;
 
     public Projectile(GamePanel gp) {
         super(gp);
@@ -21,48 +23,28 @@ public class Projectile extends Entity {
 
     @Override
     public void update() {
-        if (user == gp.player) {
-            int monsterIndex = gp.cChecker.checkEntity(this, gp.monster);
-            if (monsterIndex != 999) {
-                switch (name) {
-                    case "Fireball" -> {
-                        gp.player.damageMonster(monsterIndex, this);
-                        alive = false;
-                    }
-                    case "Wave" -> {
-                        gp.player.life += life;
-                        if (gp.player.life > gp.player.maxLife) {
-                            gp.player.life = gp.player.maxLife;
-                        }
-                        alive = false;
-                    }
-                    case "Tornado" -> {
-                        gp.player.knockBack(gp.monster[monsterIndex], this);
-                        alive = false;
-                    }
+        moveProjectile();
+        life--;
+        if (life <= 0) alive = false;
+        animateSprite();
+    }
 
-                }
-            }
-        }
-
+    protected void moveProjectile() {
         switch (direction) {
             case "up" -> worldY -= speed;
             case "down" -> worldY += speed;
             case "left" -> worldX -= speed;
             case "right" -> worldX += speed;
         }
-        life--;
-        if (life <= 0) {
-            alive = false;
-        }
+    }
+
+    protected void animateSprite() {
         spriteCounter++;
         if (spriteCounter > 12) {
-            if (spriteNum == 1) {
-                spriteNum = 2;
-            } else if (spriteNum == 2) {
-                spriteNum = 1;
-            }
+            spriteNum = (spriteNum == 1) ? 2 : 1;
             spriteCounter = 0;
         }
     }
+
+    public abstract void loadProjectileSprites();
 }

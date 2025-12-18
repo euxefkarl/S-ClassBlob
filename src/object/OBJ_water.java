@@ -7,14 +7,13 @@ public class OBJ_water extends Entity {
 
     public OBJ_water(GamePanel gp) {
         super(gp);
-        entityType = typeForm;
         name = "Water Gem";
-        down1 = setup("/res/objects/OBJ_water1", gp.tileSize, gp.tileSize);
-        down2 = setup("/res/objects/OBJ_water2", gp.tileSize, gp.tileSize);
-        itemAttackDamage = 0;
+        entityType = typeForm;
         defense = 3;
-        endurance = 2;
-        damageAmp = 0;
 
+        loadObjectSprites("/res/objects/OBJ_water", gp.tileSize, gp.tileSize);
     }
+
+    @Override
+    public void update() {}
 }

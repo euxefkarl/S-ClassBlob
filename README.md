@@ -85,3 +85,9 @@ Devlog 2.0 12/16/25
 - added game over screen
 - cleaned up code
 - debug hitbox bugs
+
+Devlog 2.1 12/19/2025
+- Major overhaul
+- Refactored majority of codebase to ensure SOLID adherence
+- Collision and movement working again
+- Combat and items in next update

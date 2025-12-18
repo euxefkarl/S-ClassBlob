@@ -7,14 +7,13 @@ public class OBJ_wind extends Entity {
 
     public OBJ_wind(GamePanel gp) {
         super(gp);
-        entityType = typeForm;
         name = "Wind Gem";
-        down1 = setup("/res/objects/OBJ_wind1", gp.tileSize, gp.tileSize);
-        down2 = setup("/res/objects/OBJ_wind2", gp.tileSize, gp.tileSize);
-        itemAttackDamage = 1;
+        entityType = typeForm;
         defense = 1;
-        endurance = 1;
-        damageAmp = 1;
 
+        loadObjectSprites("/res/objects/OBJ_wind", gp.tileSize, gp.tileSize);
     }
+
+    @Override
+    public void update() {}
 }

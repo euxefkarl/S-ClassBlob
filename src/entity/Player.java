@@ -1,569 +1,139 @@
 package entity;
 
-import java.awt.AlphaComposite;
-import java.awt.Graphics2D;
+import combat.CombatComponent;
+import combat.HealthComponent;
+import combat.PhysicalDamageCalculator;
 import java.awt.Rectangle;
-import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.List;
 import main.GamePanel;
 import main.KeyHandler;
 import object.OBJ_Fireball;
 import object.OBJ_Tornado;
 import object.OBJ_Wave;
 
-public class Player extends Entity {
+public class Player extends LivingEntity {
 
-    KeyHandler keyH;
+    private final KeyHandler keyH;
 
     public final int screenX;
     public final int screenY;
-    public ArrayList<Entity> inventory = new ArrayList<>();
-    public final int inventorySize = 20;
+    public int life, maxLife;
+    public int strength, defense, agility, intelligence, endurance, attackDamage;
+    public int level, exp, nextLevelExp;
+    public List<Item> inventory = new ArrayList<>();
+    public Entity currentForm = null;
+    public boolean invincible;
+    public boolean attacking;
 
     public Player(GamePanel gp, KeyHandler keyH) {
         super(gp);
         this.keyH = keyH;
-
         screenX = gp.screenWidth / 2 - (gp.tileSize / 2);
         screenY = gp.screenHeight / 2 - (gp.tileSize / 2);
-
+        collision = true;
+        speed = 4;
+        defaultSpeed = speed;
         hitBox = new Rectangle();
         hitBox.x = 8;
         hitBox.y = 16;
         hitBox.width = 32;
         hitBox.height = 20;
-        attackHitBox.width = 36;
-        attackHitBox.height = 36;
-
+        attackHitbox.width = 36;
+        attackHitbox.height = 36;
+        health = new HealthComponent(10);
+        combat = new CombatComponent(this, new PhysicalDamageCalculator());
         setDefaultValues();
-        getPlayerImage();
-        getPlayerAttackImage();
-
+        loadSprites();
     }
 
+    public void loadSprites() {
+        loadMovementSprites("/res/player/player", gp.tileSize, gp.tileSize);
+        loadAttackSprites("/res/player/player", gp.tileSize, gp.tileSize * 2, gp.tileSize * 2, gp.tileSize);
+    }
+
+    @Override
+    protected void setAction() {
+        moving = false;
+
+        if (keyH.upPressed) {
+            direction = "up";
+            moving = true;
+        } else if (keyH.downPressed) {
+            direction = "down";
+            moving = true;
+        } else if (keyH.leftPressed) {
+            direction = "left";
+            moving = true;
+        } else if (keyH.rightPressed) {
+            direction = "right";
+            moving = true;
+        }
+
+        attacking = keyH.interactPressed;
+    }
+
+    
+    @Override
+    public void update() {
+        setAction();
+
+        collisionOn = false;
+
+        if (moving) {
+            gp.cChecker.checkTile(this);
+            gp.cChecker.checkEntity(this, gp.npc, true);
+            gp.cChecker.checkEntity(this, gp.monster, true);
+
+            if (!collisionOn) {
+                tryMove(direction);
+            }
+        }
+
+        updateInvincibility();
+        updateAnimation();
+    }
+
+    public void selectItem() {
+         }
+
+    public void cycleForm() {
+         }
+
     public void setDefaultValues() {
-        // desired start tile (tile coordinates)
-        int startTileX = 2;
-        int startTileY = 47;
+        // start tile
+        int startCol = 3;
+        int startRow = 47;
 
         // convert to world pixels
-        worldX = gp.tileSize * startTileX;
-        worldY = gp.tileSize * startTileY;
+        worldX = gp.tileSize * startCol;
+        worldY = gp.tileSize * startRow;
+
         defaultSpeed = 4;
         speed = defaultSpeed;
         direction = "down";
         name = "Player";
         //player status
-        maxLife = 6;
+        maxLife = health.getLife();
         life = maxLife;
         level = 1;
         strength = 1;
         agility = 1;
         intelligence = 1;
         endurance = 1;
-        damageAmp = 1;
         exp = 0;
         nextLevelExp = 5;
         motion1Duration = 5;
         motion2Duration = 25;
         currentForm = null;
-        attackDamage = getAttack();
+        attackDamage = getAttackPower();
         defense = getDefense();
-        fireball = new OBJ_Fireball(gp);
+        Entity fireball = new OBJ_Fireball(gp);
         fireball.alive = false;
-        wave = new OBJ_Wave(gp);
+        Entity wave = new OBJ_Wave(gp);
         wave.alive = false;
-        tornado = new OBJ_Tornado(gp);
+        Entity tornado = new OBJ_Tornado(gp);
         tornado.alive = false;
-
-    }
-
-    public int getAttack() {
-        if (currentForm == null) {
-            return 1;
-        }
-        return (currentForm.attackDamage + strength + agility + intelligence) * damageAmp;
-    }
-
-    public int getDefense() {
-        if (currentForm == null) {
-            return 1;
-        }
-        return (currentForm.defense + currentForm.endurance) * endurance;
-    }
-
-    //load player sprites
-    public void getPlayerImage() {
-        up1 = setup("/res/player/player_up1", gp.tileSize, gp.tileSize);
-        up2 = setup("/res/player/player_up2", gp.tileSize, gp.tileSize);
-        down1 = setup("/res/player/player_down1", gp.tileSize, gp.tileSize);
-        down2 = setup("/res/player/player_down2", gp.tileSize, gp.tileSize);
-        left1 = setup("/res/player/player_left1", gp.tileSize, gp.tileSize);
-        left2 = setup("/res/player/player_left2", gp.tileSize, gp.tileSize);
-        right1 = setup("/res/player/player_right1", gp.tileSize, gp.tileSize);
-        right2 = setup("/res/player/player_right2", gp.tileSize, gp.tileSize);
-    }
-
-    public void getPlayerAttackImage() {
-        attackUp1 = setup("/res/player/player_up_atk1", gp.tileSize, gp.tileSize * 2);
-        attackUp2 = setup("/res/player/player_up_atk2", gp.tileSize, gp.tileSize * 2);
-        attackDown1 = setup("/res/player/player_down_atk1", gp.tileSize, gp.tileSize * 2);
-        attackDown2 = setup("/res/player/player_down_atk2", gp.tileSize, gp.tileSize * 2);
-        attackLeft1 = setup("/res/player/player_left_atk1", gp.tileSize * 2, gp.tileSize);
-        attackLeft2 = setup("/res/player/player_left_atk2", gp.tileSize * 2, gp.tileSize);
-        attackRight1 = setup("/res/player/player_right_atk1", gp.tileSize * 2, gp.tileSize);
-        attackRight2 = setup("/res/player/player_right_atk2", gp.tileSize * 2, gp.tileSize);
-
-    }
-
-    //checks key input to change player sprite 
-    @Override
-    public void update() {
-        if (attacking == true) {
-            attack();
-        } else if (keyH.upPressed == true || keyH.downPressed == true
-                || keyH.leftPressed == true || keyH.rightPressed == true || keyH.interactPressed == true) {
-
-            if (keyH.upPressed) {
-                direction = "up";
-            } else if (keyH.downPressed) {
-                direction = "down";
-            } else if (keyH.leftPressed) {
-                direction = "left";
-            } else if (keyH.rightPressed) {
-                direction = "right";
-            }
-
-            //collison check
-            collisionOn = false;
-            gp.cChecker.checkTile(this);
-            int objIndex = gp.cChecker.checkObject(this, true);
-            pickUpObject(objIndex);
-
-            //check npc collision
-            int npcIndex = gp.cChecker.checkEntity(this, gp.npc);
-            interactNPC(npcIndex);
-
-            //check monster collision
-            int monsterIndex = gp.cChecker.checkEntity(this, gp.monster);
-            contactMonster(monsterIndex);
-
-            if (collisionOn == false && keyH.interactPressed == false) {
-                switch (direction) {
-                    case "up":
-                        worldY -= speed;
-                        break;
-                    case "down":
-                        worldY += speed;
-                        break;
-                    case "left":
-                        worldX -= speed;
-                        break;
-                    case "right":
-                        worldX += speed;
-                        break;
-
-                }
-            }
-            gp.keyH.interactPressed = false;
-        }
-        //changes sprite for walking animation
-        if (!attacking) {
-            if (spriteCounter > 12) {
-                if (spriteNum == 1) {
-                    spriteNum = 2;
-                } else if (spriteNum == 2) {
-                    spriteNum = 1;
-                }
-                spriteCounter = 0;
-            }
-        }
-        spriteCounter++;
-        if (gp.keyH.abilityPressed == true && currentForm != null) {
-            if (currentForm.name.equals("Flame Gem")) {
-                flameAbility();
-            }
-            if (currentForm.name.equals("Water Gem")) {
-                waterAbility();
-            }
-            if (currentForm.name.equals("Wind Gem")) {
-                windAbility();
-            }
-        }
-        gp.keyH.abilityPressed = false;
-        //invincibility timer
-        if (invincible == true) {
-            invinceCounter++;
-            if (invinceCounter > 60) {
-                invincible = false;
-                invinceCounter = 0;
-            }
-        }
-        if (life <= 0) {
-            gp.gameState = gp.gameOverState;
-        }
-    }
-
-    public void damageMonster(int i, Entity attacker) {
-        if (i != 999) {
-            if (gp.monster[i].invincible == false && gp.monster[i].dying == false) {
-                int damage = attackDamage - gp.monster[i].defense;
-                System.out.println(damage);
-                if (damage < 0) {
-                    damage = 0;
-                }
-                gp.monster[i].life -= damage;
-                gp.monster[i].invincible = true;
-                gp.monster[i].damageReaction();
-                if (gp.monster[i].life <= 0) {
-                    gp.monster[i].dying = true;
-                    exp += gp.monster[i].exp;
-                    checkLevelUp();
-                }
-            }
-        }
-    }
-
-    public void checkLevelUp() {
-        // Allow carrying over excess EXP and handle multiple level-ups
-        while (exp >= nextLevelExp) {
-            // consume required EXP for this level-up
-            exp -= nextLevelExp;
-
-            // level up rewards
-            level++;
-            maxLife += 2;
-            life += 1;
-            strength++;
-            agility++;
-            attackDamage = getAttack();
-            defense = getDefense();
-
-            // increase requirement for next level (same growth as before)
-            nextLevelExp += nextLevelExp * 1.2;
-
-        }
-    }
-
-    public void selectItem() {
-        int itemIndex = gp.ui.getSlotItemIndex();
-        if (itemIndex < inventory.size()) {
-            Entity selectedItem = inventory.get(itemIndex);
-            if (selectedItem.entityType == typeForm) {
-                changeCurrentForm(selectedItem);
-            }
-            if (selectedItem.entityType == typeConsumable) {
-                selectedItem.use(this);
-                inventory.remove(itemIndex);
-            }
-        }
-    }
-
-    public void cycleForm() {
-        if (inventory.isEmpty()) {
-            return;
-        }
-
-        Entity nextForm = null;
-        boolean foundCurrent = false;
-
-        // Look for next form after current
-        for (Entity item : inventory) {
-            if (item.entityType == typeForm) {
-                if (foundCurrent) {
-                    nextForm = item;
-                    break;
-                }
-                if (item == currentForm) {
-                    foundCurrent = true;
-                }
-            }
-        }
-
-        // If no form found after current, cycle to first form
-        if (nextForm == null) {
-            for (Entity item : inventory) {
-                if (item.entityType == typeForm) {
-                    nextForm = item;
-                    break;
-                }
-            }
-        }
-
-        if (nextForm != null) {
-            changeCurrentForm(nextForm);
-        }
-    }
-
-    public void changeCurrentForm(Entity selectedItem) {
-        currentForm = selectedItem;
-        attackDamage = getAttack();
-        defense = getDefense();
-        switch (selectedItem.name) {
-            case "Flame Gem" ->
-                changeFlame();
-            case "Water Gem" ->
-                changeWater();
-            case "Wind Gem" ->
-                changeWind();
-
-        }
-    }
-
-    public void changeFlame() {
-        up1 = setup("/res/player/flame_up1", gp.tileSize, gp.tileSize);
-        up2 = setup("/res/player/flame_up2", gp.tileSize, gp.tileSize);
-        down1 = setup("/res/player/flame_down1", gp.tileSize, gp.tileSize);
-        down2 = setup("/res/player/flame_down2", gp.tileSize, gp.tileSize);
-        left1 = setup("/res/player/flame_left1", gp.tileSize, gp.tileSize);
-        left2 = setup("/res/player/flame_left2", gp.tileSize, gp.tileSize);
-        right1 = setup("/res/player/flame_right1", gp.tileSize, gp.tileSize);
-        right2 = setup("/res/player/flame_right2", gp.tileSize, gp.tileSize);
-
-        attackUp1 = setup("/res/player/flame_up_atk1", gp.tileSize, gp.tileSize * 2);
-        attackUp2 = setup("/res/player/flame_up_atk2", gp.tileSize, gp.tileSize * 2);
-        attackDown1 = setup("/res/player/flame_down_atk1", gp.tileSize, gp.tileSize * 2);
-        attackDown2 = setup("/res/player/flame_down_atk2", gp.tileSize, gp.tileSize * 2);
-        attackLeft1 = setup("/res/player/flame_left_atk1", gp.tileSize * 2, gp.tileSize);
-        attackLeft2 = setup("/res/player/flame_left_atk2", gp.tileSize * 2, gp.tileSize);
-        attackRight1 = setup("/res/player/flame_right_atk1", gp.tileSize * 2, gp.tileSize);
-        attackRight2 = setup("/res/player/flame_right_atk2", gp.tileSize * 2, gp.tileSize);
-    }
-
-    public void changeWater() {
-        up1 = setup("/res/player/water_up1", gp.tileSize, gp.tileSize);
-        up2 = setup("/res/player/water_up2", gp.tileSize, gp.tileSize);
-        down1 = setup("/res/player/water_down1", gp.tileSize, gp.tileSize);
-        down2 = setup("/res/player/water_down2", gp.tileSize, gp.tileSize);
-        left1 = setup("/res/player/water_left1", gp.tileSize, gp.tileSize);
-        left2 = setup("/res/player/water_left2", gp.tileSize, gp.tileSize);
-        right1 = setup("/res/player/water_right1", gp.tileSize, gp.tileSize);
-        right2 = setup("/res/player/water_right2", gp.tileSize, gp.tileSize);
-
-        attackUp1 = setup("/res/player/water_up_atk1", gp.tileSize, gp.tileSize * 2);
-        attackUp2 = setup("/res/player/water_up_atk2", gp.tileSize, gp.tileSize * 2);
-        attackDown1 = setup("/res/player/water_down_atk1", gp.tileSize, gp.tileSize * 2);
-        attackDown2 = setup("/res/player/water_down_atk2", gp.tileSize, gp.tileSize * 2);
-        attackLeft1 = setup("/res/player/water_left_atk1", gp.tileSize * 2, gp.tileSize);
-        attackLeft2 = setup("/res/player/water_left_atk2", gp.tileSize * 2, gp.tileSize);
-        attackRight1 = setup("/res/player/water_right_atk1", gp.tileSize * 2, gp.tileSize);
-        attackRight2 = setup("/res/player/water_right_atk2", gp.tileSize * 2, gp.tileSize);
-    }
-
-    public void changeWind() {
-        up1 = setup("/res/player/wind_up1", gp.tileSize, gp.tileSize);
-        up2 = setup("/res/player/wind_up2", gp.tileSize, gp.tileSize);
-        down1 = setup("/res/player/wind_down1", gp.tileSize, gp.tileSize);
-        down2 = setup("/res/player/wind_down2", gp.tileSize, gp.tileSize);
-        left1 = setup("/res/player/wind_left1", gp.tileSize, gp.tileSize);
-        left2 = setup("/res/player/wind_left2", gp.tileSize, gp.tileSize);
-        right1 = setup("/res/player/wind_right1", gp.tileSize, gp.tileSize);
-        right2 = setup("/res/player/wind_right2", gp.tileSize, gp.tileSize);
-
-        attackUp1 = setup("/res/player/wind_up_atk1", gp.tileSize, gp.tileSize * 2);
-        attackUp2 = setup("/res/player/wind_up_atk2", gp.tileSize, gp.tileSize * 2);
-        attackDown1 = setup("/res/player/wind_down_atk1", gp.tileSize, gp.tileSize * 2);
-        attackDown2 = setup("/res/player/wind_down_atk2", gp.tileSize, gp.tileSize * 2);
-        attackLeft1 = setup("/res/player/wind_left_atk1", gp.tileSize * 2, gp.tileSize);
-        attackLeft2 = setup("/res/player/wind_left_atk2", gp.tileSize * 2, gp.tileSize);
-        attackRight1 = setup("/res/player/wind_right_atk1", gp.tileSize * 2, gp.tileSize);
-        attackRight2 = setup("/res/player/wind_right_atk2", gp.tileSize * 2, gp.tileSize);
-    }
-
-    public void flameAbility() {
-        if (fireball.alive == false) {
-            fireball.set(worldX, worldY, direction, true, this);
-            gp.projectileList.add(fireball);
-        }
-
-    }
-
-    public void waterAbility() {
-        if (wave.alive == false) {
-            wave.set(worldX, worldY, direction, true, this);
-            gp.projectileList.add(wave);
-
-        }
-    }
-
-    public void windAbility() {
-        if (tornado.alive == false) {
-            tornado.set(worldX, worldY, direction, true, this);
-            gp.projectileList.add(tornado);
-
-        }
-    }
-
-    //checks collision between pick upable objects
-    public void pickUpObject(int i) {
-        if (i != 999) {
-            if (inventory.size() != inventorySize) {
-                inventory.add(gp.obj[i]);
-            } else {
-                text = "Inventory Full!";
-            }
-            gp.ui.showMessage(text);
-            gp.obj[i] = null;
-        }
-    }
-
-    public void interactNPC(int i) {
-        if (keyH.interactPressed == true) {
-            if (i != 999) {
-                gp.gameState = gp.dialogueState;
-                gp.npc[i].speak();
-            } else {
-                attacking = true;
-            }
-        }
-    }
-
-    public void contactMonster(int i) {
-        if (i != 999) {
-            //damage player
-            if (invincible == false) {
-                int damage = gp.monster[i].attackDamage - defense;
-                if (damage < 0) {
-                    damage = 0;
-                }
-                life -= damage;
-                if (life <= 0) {
-                    life = 0;
-                }
-                invincible = true;
-                invinceCounter = 0;
-            }
-            ;
-        }
-    }
-
-    //draws player current sprite
-    @Override
-    public void draw(Graphics2D g2) {
-
-        //draw player image based on direction
-        BufferedImage image = null;
-        int tempScreenX = screenX;
-        int tempScreenY = screenY;
-        switch (direction) {
-            case "up" -> {
-                if (attacking == false) {
-                    if (spriteNum == 1) {
-                        image = up1;
-                    }
-                    if (spriteNum == 2) {
-                        image = up2;
-                    }
-                }
-                if (attacking == true) {
-                    tempScreenY = screenY - gp.tileSize;
-                    if (spriteNum == 1) {
-                        image = attackUp1;
-                    }
-                    if (spriteNum == 2) {
-                        image = attackUp2;
-                    }
-                }
-                break;
-            }
-            case "down" -> {
-                if (attacking == false) {
-                    if (spriteNum == 1) {
-                        image = down1;
-                    }
-                    if (spriteNum == 2) {
-                        image = down2;
-                    }
-                }
-                if (attacking == true) {
-                    if (spriteNum == 1) {
-                        image = attackDown1;
-                    }
-                    if (spriteNum == 2) {
-                        image = attackDown2;
-                    }
-                }
-                break;
-            }
-            case "left" -> {
-                if (attacking == false) {
-                    if (spriteNum == 1) {
-                        image = left1;
-                    }
-                    if (spriteNum == 2) {
-                        image = left2;
-                    }
-                }
-                if (attacking == true) {
-                    tempScreenX = screenX - gp.tileSize;
-                    if (spriteNum == 1) {
-                        image = attackLeft1;
-                    }
-                    if (spriteNum == 2) {
-                        image = attackLeft2;
-                    }
-                }
-                break;
-            }
-            case "right" -> {
-                if (attacking == false) {
-                    if (spriteNum == 1) {
-                        image = right1;
-                    }
-                    if (spriteNum == 2) {
-                        image = right2;
-                    }
-                }
-                if (attacking == true) {
-                    if (spriteNum == 1) {
-                        image = attackRight1;
-                    }
-                    if (spriteNum == 2) {
-                        image = attackRight2;
-                    }
-                }
-                break;
-            }
-        }
-        // make player transparent when invincible
-        if (invincible == true) {
-            g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.2f));
-        }
-
-// compute draw position/size using tempScreenX/tempScreenY
-        int drawX = tempScreenX;
-        int drawY = tempScreenY;
-        int drawWidth = gp.tileSize;
-        int drawHeight = gp.tileSize;
-
-        if (attacking) {
-            switch (direction) {
-                case "up":
-                    drawY = screenY - gp.tileSize;        // one tile above
-                    drawWidth = gp.tileSize;
-                    drawHeight = gp.tileSize * 2;
-                    break;
-                case "down":
-                    drawY = screenY;                      // draws below player
-                    drawWidth = gp.tileSize;
-                    drawHeight = gp.tileSize * 2;
-                    break;
-                case "left":
-                    drawX = screenX - gp.tileSize;        // one tile to the left
-                    drawWidth = gp.tileSize * 2;
-                    drawHeight = gp.tileSize;
-                    break;
-                case "right":
-                    drawX = screenX;                      // draws to the right of player
-                    drawWidth = gp.tileSize * 2;
-                    drawHeight = gp.tileSize;
-                    break;
-            }
-        }
-
-// draw using computed values so larger attack sprites render at correct size
-        g2.drawImage(image, drawX, drawY, drawWidth, drawHeight, null);
-        g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f));
     }
 
 }
