@@ -14,7 +14,7 @@ import tile.TileManager;
 
 public class GamePanel extends JPanel implements Runnable {
 
-    // SCREEN SETTINGS
+    // screen settings
     final int originalTileSize = 16;
     final int scale = 3;
     public final int tileSize = originalTileSize * scale;
@@ -23,7 +23,7 @@ public class GamePanel extends JPanel implements Runnable {
     public final int screenWidth = tileSize * maxScreenCol;
     public final int screenHeight = tileSize * maxScreenRow;
 
-    // SYSTEM
+    // system
     Thread gameThread;
     public KeyHandler keyH = new KeyHandler(this);
     public PathFinder pFinder = new PathFinder(this);
@@ -33,13 +33,13 @@ public class GamePanel extends JPanel implements Runnable {
     public SpriteManager spriteManager = new SpriteManager();
     public UI ui = new UI(this);
 
-    // WORLD SETTINGS
+    // world settings
     public final int maxWorldCol = 50;
     public final int maxWorldRow = 50;
     public final int maxWorldWidth = tileSize * maxWorldCol;
     public final int maxWorldHeight = tileSize * maxWorldRow;
 
-    // ENTITIES
+    // entities
     public Player player = new Player(this, keyH);
     public Entity[] obj = new Entity[30];
     public Entity[] npc = new Entity[10];
@@ -47,7 +47,7 @@ public class GamePanel extends JPanel implements Runnable {
     public ArrayList<Entity> projectileList = new ArrayList<>();
     public ArrayList<Entity> itemList = new ArrayList<>();
 
-    // GAMESTATE
+    // gamestate
     public int gameState;
     public final int titleState = 0;
     public final int playState = 1;
@@ -69,8 +69,8 @@ public class GamePanel extends JPanel implements Runnable {
     }
 
     public void setupObjects() {
-        aPlacer.setNPC();
         aPlacer.setObject();
+        aPlacer.setNPC();
         aPlacer.setMonster();
         gameState = titleState;
     }
@@ -81,11 +81,25 @@ public class GamePanel extends JPanel implements Runnable {
     }
 
     public void retry() {
+        gameState = titleState;
+
         player.inventory.clear();
         player.setDefaultValues();
+
+        projectileList.clear();
+        itemList.clear();
+
+        for (int i = 0; i < npc.length; i++) {
+            npc[i] = null;
+        }
+        for (int i = 0; i < monster.length; i++) {
+            monster[i] = null;
+        }
+        for (int i = 0; i < obj.length; i++) {
+            obj[i] = null;
+        }
+
         setupObjects();
-        player.loadSprites();
-        
     }
 
     @Override
@@ -117,22 +131,32 @@ public class GamePanel extends JPanel implements Runnable {
         }
     }
 
-    // --- GAME UPDATE ---
     public void update() {
-        // Update all entities
-        player.update();
-        updateEntityArray(npc);
-        updateEntityArray(monster);
-        updateEntityArray(obj);
-        updateEntityList(projectileList);
-        updateEntityList(itemList);
 
-        
+        if (gameState == playState) {
+            // update all entities only when in playstate
+            player.update();
+            updateEntityArray(npc);
+            updateEntityArray(monster);
+            updateEntityArray(obj);
+            updateEntityList(projectileList);
+            updateEntityList(itemList);
+        }
+
+        if (gameState == pauseState) {
+            // ui handles this
+        }
+
+        if (gameState == dialogueState) {
+            // ui handles
+        }
     }
 
     private void updateEntityArray(Entity[] array) {
-        for (int i = 0; i < array.length; i++) {
-            if (array[i] != null) array[i].update();
+        for (Entity array1 : array) {
+            if (array1 != null) {
+                array1.update();
+            }
         }
     }
 
@@ -148,7 +172,6 @@ public class GamePanel extends JPanel implements Runnable {
         }
     }
 
-    // --- DRAW ---
     @Override
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
@@ -157,10 +180,10 @@ public class GamePanel extends JPanel implements Runnable {
         if (gameState == titleState) {
             ui.draw(g2, this);
         } else {
-            // Draw tiles first
+
             tileM.drawTile(g2);
-            
-            // Draw all entities sorted by worldY for layering
+
+            // draw all entities sorted by worldy for layering
             ArrayList<Entity> drawList = new ArrayList<>();
             drawList.add(player);
             addNonNull(drawList, npc);
@@ -183,7 +206,8 @@ public class GamePanel extends JPanel implements Runnable {
 
     private void addNonNull(ArrayList<Entity> list, Entity[] array) {
         for (Entity e : array) {
-            if (e != null) list.add(e);
+            if (e != null)
+                list.add(e);
         }
     }
 }

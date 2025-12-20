@@ -62,20 +62,20 @@ public class UI {
         if (gp.gameState == gp.gameOverState) {
             drawGameOverScreen();
         }
-        if(gp.gameState == gp.gameWinState){
+        if (gp.gameState == gp.gameWinState) {
             drawWinScreen();
         }
 
     }
 
-    public void drawWinScreen(){
+    public void drawWinScreen() {
         g2.setColor(new Color(0, 0, 0, 150));
         g2.fillRect(0, 0, gp.screenWidth, gp.screenHeight);
 
         int x;
         int y;
         String text;
-        g2.setFont(g2.getFont().deriveFont(Font.BOLD, 70f));
+        g2.setFont(g2.getFont().deriveFont(Font.BOLD, 50f));
         text = "YOU WON! EVIL IS BANISHED";
         g2.setColor(Color.black);
         x = getCenteredX(text);
@@ -83,41 +83,40 @@ public class UI {
         g2.drawString(text, x, y);
         g2.setColor(Color.white);
         g2.drawString(text, x - 4, y - 4);
-        g2.setFont(g2.getFont().deriveFont(50f));
+        g2.setFont(g2.getFont().deriveFont(40f));
         text = "Retry";
         x = getCenteredX(text);
         y += gp.tileSize * 4;
         g2.drawString(text, x, y);
-        if(commandNum == 0){
+        if (commandNum == 0) {
             g2.drawString(">", x - 40, y);
         }
         text = "Quit";
         x = getCenteredX(text);
         y += 55;
         g2.drawString(text, x, y);
-        if(commandNum == 1){
+        if (commandNum == 1) {
             g2.drawString(">", x - 40, y);
         }
 
-        
     }
 
     public void drawInventory() {
-        //frame
+        // frame
         final int frameX = gp.tileSize * 9;
         final int frameY = gp.tileSize;
         final int frameWidth = gp.tileSize * 6;
         final int frameHeight = gp.tileSize * 5;
         drawSubWindow(frameX, frameY, frameWidth, frameHeight);
 
-        //slots
+        // slots
         final int slotXstart = frameX + 20;
         final int slotYstart = frameY + 20;
         int slotX = slotXstart;
         int slotY = slotYstart;
         int slotSize = gp.tileSize + 3;
 
-        //draw items
+        // draw items
         for (int i = 0; i < gp.player.inventory.size(); i++) {
             if (gp.player.currentForm == gp.player.inventory.get(i)) {
                 g2.setColor(new Color(240, 190, 40));
@@ -132,24 +131,24 @@ public class UI {
             }
         }
 
-        //cursor
+        // cursor
         int cursorX = slotXstart + (slotSize * slotCol);
         int cursorY = slotYstart + (slotSize * slotRow);
         int cursorWidth = gp.tileSize;
         int cursorHeight = gp.tileSize;
 
-        //draw cursor
+        // draw cursor
         g2.setColor(Color.white);
         g2.setStroke(new BasicStroke(3));
         g2.drawRoundRect(cursorX, cursorY, cursorWidth, cursorHeight, 10, 10);
 
-        //description subwindow
+        // description subwindow
         int dFrameX = frameX;
         int dFrameY = frameY + frameHeight;
         int dFrameWidth = frameWidth;
         int dFrameHeight = gp.tileSize * 3;
 
-        //draw desc text
+        // draw desc text
         int textX = dFrameX + 20;
         int textY = dFrameY + gp.tileSize;
         g2.setFont(g2.getFont().deriveFont(20F));
@@ -174,7 +173,7 @@ public class UI {
         final int frameY = gp.tileSize;
         final int frameWidth = gp.tileSize * 5;
         final int frameHeight = gp.tileSize * 10;
-        //draw frame
+        // draw frame
         drawSubWindow(frameX, frameY, frameWidth, frameHeight);
         g2.setColor(Color.white);
         g2.setFont(g2.getFont().deriveFont(32F));
@@ -182,13 +181,13 @@ public class UI {
         int textY = frameY + gp.tileSize;
         final int lineHeight = 35;
         String form = "";
-        //check if no equiped form
+        // check if no equiped form
         if (gp.player.currentForm == null) {
             formImage = gp.player.down1;
         } else {
             formImage = gp.player.currentForm.down1;
         }
-        //text
+        // text
 
         g2.drawString("Level", textX, textY);
         textY += lineHeight;
@@ -263,7 +262,7 @@ public class UI {
     }
 
     public void drawDialogueScreen() {
-        //window parameters
+        // window parameters
         int x = gp.tileSize * 2;
         int y = gp.tileSize / 2;
         int width = gp.screenWidth - (gp.tileSize * 4);
@@ -321,41 +320,40 @@ public class UI {
         x = getCenteredX(text);
         y += gp.tileSize * 4;
         g2.drawString(text, x, y);
-        if(commandNum == 0){
+        if (commandNum == 0) {
             g2.drawString(">", x - 40, y);
         }
         text = "Quit";
         x = getCenteredX(text);
         y += 55;
         g2.drawString(text, x, y);
-        if(commandNum == 1){
+        if (commandNum == 1) {
             g2.drawString(">", x - 40, y);
         }
 
-        
     }
 
     public void drawTitleScreen() {
-        //title name
+        // title name
         g2.setFont(g2.getFont().deriveFont(Font.BOLD, 96F));
         String text = "S-Class Blob";
         int x = getCenteredX(text);
         int y = gp.tileSize * 3;
 
-        //shadow
+        // shadow
         g2.setColor(Color.gray);
         g2.drawString(text, x + 5, y + 5);
 
-        //main color
+        // main color
         g2.setColor(Color.white);
         g2.drawString(text, x, y);
 
-        //blob image
+        // blob image
         x = gp.screenWidth / 2 - (gp.tileSize);
         y += gp.tileSize;
         g2.drawImage(gp.player.down1, x, y, gp.tileSize * 2, gp.tileSize * 2, null);
 
-        //menu options
+        // menu options
         g2.setFont(g2.getFont().deriveFont(Font.BOLD, 48F));
 
         text = "NEW GAME";
@@ -399,17 +397,17 @@ public class UI {
         int x = gp.tileSize / 2;
         int y = gp.tileSize / 2;
         int i = 0;
-        //draw max life
+        // draw max life
         while (i < gp.player.maxLife / 2) {
             g2.drawImage(empty_life, x, y, null);
             i++;
             x += full_life.getWidth();
         }
-        //reset
+        // reset
         x = gp.tileSize / 2;
         y = gp.tileSize / 2;
         i = 0;
-        //draw current life
+        // draw current life
         while (i < gp.player.life) {
             g2.drawImage(half_life, x, y, null);
             i++;

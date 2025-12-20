@@ -1,8 +1,11 @@
 package ai;
 
-import main.GamePanel;
 import java.util.ArrayList;
+import main.GamePanel;
 
+
+
+//basic a* algorithm pathfinding implementation
 public class PathFinder {
 
     private final GamePanel gp;
