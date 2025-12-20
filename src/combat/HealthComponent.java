@@ -1,5 +1,7 @@
 package combat;
 
+
+//handles all health related combat mechanics
 public class HealthComponent {
 
     private final int maxLife;
@@ -12,7 +14,16 @@ public class HealthComponent {
 
     public void damage(int amount) {
         life -= amount;
-        if (life < 0) life = 0;
+        if (life < 0)
+            life = 0;
+    }
+
+ 
+    public void heal(int amount) {
+        life += amount;
+        if (life > maxLife) {
+            life = maxLife;
+        }
     }
 
     public boolean isDead() {

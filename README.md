@@ -91,3 +91,18 @@ Devlog 2.1 12/19/2025
 - Refactored majority of codebase to ensure SOLID adherence
 - Collision and movement working again
 - Combat and items in next update
+
+Devlog 2.2 12/20/25
+- Modularized most of the codebase
+- Lessened dependencies as much as possible 
+- * for example Gamepanel is a God Class, however implementing abstraction layers\ would have been time consuming and overengineering for a small project like this
+- Implemented multi layer abstractions for behavior and combat 
+- Implemented tests for combat system (Combat Component and Health Component) using JUnit 4
+- Refactored to fit SOLID Design principles wherever possible and practical
+
+
+Major Painpoints
+
+- could not revamp titlescreen to instead display help menu instead of load game
+- could not reimplement consumbale item, life gem
+- refactored something i spent a month working on in 3 days leaves a lot to be desired

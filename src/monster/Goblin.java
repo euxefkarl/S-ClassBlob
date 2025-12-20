@@ -4,14 +4,12 @@ import ai.EntityAI;
 import combat.CombatComponent;
 import combat.HealthComponent;
 import combat.PhysicalDamageCalculator;
-import entity.LivingEntity;
-import java.util.Random;
+import entity.Entity; // Import needed
 import main.GamePanel;
 
-public class Goblin extends LivingEntity {
+public class Goblin extends Monster {
 
-    private final Random random = new Random();
-    private int actionLockCounter = 0;
+    private boolean provoked = false; // state flag
 
     public Goblin(GamePanel gp) {
         super(gp);
@@ -19,26 +17,60 @@ public class Goblin extends LivingEntity {
         ai = new EntityAI(gp, this);
         speed = 2;
         defaultSpeed = speed;
-        collision = true;
-        health = new HealthComponent(6);
-        combat = new CombatComponent(this, new PhysicalDamageCalculator());
 
+        maxLife = 6;
+        life = maxLife;
+        attackDamage = 2;
+        defense = 0;
+        exp = 2;
+
+        health = new HealthComponent(maxLife);
+        combat = new CombatComponent(gp, this, new PhysicalDamageCalculator());
+
+        this.entityType = typeMonster;
         loadMovementSprites("/res/monster/goblin", gp.tileSize, gp.tileSize);
     }
 
     @Override
     protected void setAction() {
-        actionLockCounter++;
-        if (actionLockCounter > 120) {
-            int i = random.nextInt(4);
-            direction = switch (i) {
-                case 0 -> "up";
-                case 1 -> "down";
-                case 2 -> "left";
-                default -> "right";
-            };
-            tryMove(direction);
-            actionLockCounter = 0;
+        if (isAttacking()) return; // safety lock
+
+        if (provoked) {
+            // if hit, chase the player regardless of distance
+            ai.moveToward(gp.player);
+            moving = true;
+        } 
+        else {
+            // passive wandering
+            actionLockCounter++;
+            if (actionLockCounter > 120) {
+                ai.moveRandomly();
+                moving = true;
+                actionLockCounter = 0;
+            }
+        }
+    }
+
+    @Override
+    protected void damageReaction(Entity attacker) {
+        
+        if (attacker.entityType == typePlayer) {
+            provoked = true;
+            actionLockCounter = 0; 
+        }
+    }
+
+    @Override
+    protected void onDeathComplete() {
+        gp.player.exp += this.exp;
+        gp.ui.showMessage("Killed " + this.name + "! +" + this.exp + " exp");
+        gp.player.checkLevelUp();
+
+        for (int i = 0; i < gp.monster.length; i++) {
+            if (gp.monster[i] == this) {
+                gp.monster[i] = null;
+                break;
+            }
         }
     }
 }

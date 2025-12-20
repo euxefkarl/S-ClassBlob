@@ -9,7 +9,7 @@ public class OBJ_Heart extends Entity {
         super(gp);
         name = "Heart";
 
-        // Load heart sprites
+        // load heart sprites
         image = setup("/res/objects/full_life", gp.tileSize, gp.tileSize);
         image2 = setup("/res/objects/half_life", gp.tileSize, gp.tileSize);
         image3 = setup("/res/objects/empty_life", gp.tileSize, gp.tileSize);

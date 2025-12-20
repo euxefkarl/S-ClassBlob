@@ -1,80 +1,93 @@
 package entity;
 
+import ai.EntityAI;
+import java.awt.Rectangle;
 import java.util.Random;
 import main.GamePanel;
 
-public class Villager extends Entity {
+public class Villager extends LivingEntity {
 
-    private final String[] dialogue;
-    private int dialogueIndex = 0;
-    private final Random random = new Random();
     private int actionLockCounter = 0;
+    private final Random random = new Random();
 
-    public Villager(GamePanel gp, int worldX, int worldY, String[] dialogue) {
+    // components
+    private DialogueComponent dialogueComponent;
+
+    // state
+    private boolean isGuiding = false;
+
+    // quest target (the object we lead the player to)
+    private Entity target;
+
+  
+    public Villager(GamePanel gp, int worldX, int worldY, Entity target, String[] dialogueLines) {
         super(gp);
         this.worldX = worldX;
         this.worldY = worldY;
-        this.dialogue = dialogue;
+
+        // save the quest target reference
+        this.target = target;
+
         this.name = "Villager";
         this.entityType = typeNPC;
-        collision = true;
-        speed = 1;
-        loadSprite();
-    }
+        this.speed = 2;
+        this.direction = "down";
+        this.collision = true;
 
-    private void loadSprite() {
+        this.ai = new EntityAI(gp, this);
+
+        // initialize dialogue
+        this.dialogueComponent = new DialogueComponent(dialogueLines);
+
+        // define behavior when dialogue finishes
+        this.dialogueComponent.setOnDialogueExhausted(() -> {
+            this.isGuiding = true;
+            System.out.println("Villager is guiding to " + target.name);
+        });
+
+        hitBox = new Rectangle(8, 16, 32, 32);
         loadMovementSprites("/res/npc/villager", gp.tileSize, gp.tileSize);
     }
 
-    @Override
-    public void update() {
-        if (!alive) return;
-        setAction();
-        moveEntity();
-        animate();
-    }
-
-    private void setAction() {
-        actionLockCounter++;
-        if (actionLockCounter >= 120) {
-            int i = random.nextInt(4);
-            direction = switch (i) {
-                case 0 -> "up";
-                case 1 -> "down";
-                case 2 -> "left";
-                default -> "right";
-            };
-            actionLockCounter = 0;
-        }
-    }
-
-    private void moveEntity() {
-        collisionOn = false;
-        gp.cChecker.checkTile(this);
-        gp.cChecker.checkEntity(this, gp.npc,true);
-
-        if (!collisionOn) {
-            switch (direction) {
-                case "up" -> worldY -= speed;
-                case "down" -> worldY += speed;
-                case "left" -> worldX -= speed;
-                case "right" -> worldX += speed;
-            }
-        }
-    }
-
-    private void animate() {
-        spriteCounter++;
-        if (spriteCounter > 30) {
-            spriteNum = (spriteNum == 1) ? 2 : 1;
-            spriteCounter = 0;
-        }
-    }
-
     public void speak() {
-        if (dialogueIndex < dialogue.length) {
-            gp.ui.showMessage(dialogue[dialogueIndex]);
-            dialogueIndex++;
-        } else dialogueIndex = 0;
+        facePlayer();
+        dialogueComponent.speak(gp);
+    }
+
+    public void facePlayer() {
+        switch (gp.player.direction) {
+            case "up" -> direction = "down";
+            case "down" -> direction = "up";
+            case "left" -> direction = "right";
+            case "right" -> direction = "left";
+        }
+    }
+
+    @Override
+    protected void setAction() {
+        // double check: if we are talking, do absolutely nothing.
+        if (gp.gameState == gp.dialogueState) {
+            moving = false;
+            return;
+        }
+
+        if (isGuiding && target != null) {
+            // Check distance
+            int dist = ai.distanceTo(target);
+            if (dist < gp.tileSize * 1.2) { // 1.2 padding to avoid jitter
+                moving = false;
+                isGuiding = false; // turn off the quest logic
+                return; // exit method so ai isnt called
+            }
+            ai.moveToward(target);
+            moving = true;
+        } else {
+            // random wande
+        }
+    }
+
+    @Override
+    public void takeDamage(int damage, Entity source) {
+        // peaceful npc
     }
 }

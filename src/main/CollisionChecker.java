@@ -1,6 +1,8 @@
 package main;
 
 import entity.Entity;
+import entity.LivingEntity;
+import java.awt.Rectangle;
 
 public class CollisionChecker {
 
@@ -10,14 +12,15 @@ public class CollisionChecker {
         this.gp = gp;
     }
 
-    
-    //checks location of world objects with collision on
+    // --- TILE COLLISION ---
     public void checkTile(Entity entity) {
+        // find world bounds of entity hitbox
         int entityLeftWorldX = entity.worldX + entity.hitBox.x;
         int entityRightWorldX = entity.worldX + entity.hitBox.x + entity.hitBox.width;
         int entityTopWorldY = entity.worldY + entity.hitBox.y;
         int entityBotWorldY = entity.worldY + entity.hitBox.y + entity.hitBox.height;
 
+        // convert world coords to tile grid indices
         int entityLeftCol = entityLeftWorldX / gp.tileSize;
         int entityRightCol = entityRightWorldX / gp.tileSize;
         int entityTopRow = entityTopWorldY / gp.tileSize;
@@ -25,18 +28,13 @@ public class CollisionChecker {
 
         int tileNum1, tileNum2;
 
-        //temporary direction for knockback implementation
-        String direction = entity.direction;
-        if (entity.knockBack == true) {
-            direction = entity.knockBackDirection;
-        }
-
-        switch (direction) {
+        // predict next tile position based on direction and speed
+        switch (entity.direction) {
             case "up" -> {
                 entityTopRow = (entityTopWorldY - entity.speed) / gp.tileSize;
                 tileNum1 = gp.tileM.mapTileNum[entityLeftCol][entityTopRow];
                 tileNum2 = gp.tileM.mapTileNum[entityRightCol][entityTopRow];
-                if (gp.tileM.tile[tileNum1].collision == true || gp.tileM.tile[tileNum2].collision == true) {
+                if (gp.tileM.tile[tileNum1].collision || gp.tileM.tile[tileNum2].collision) {
                     entity.collisionOn = true;
                 }
             }
@@ -44,7 +42,7 @@ public class CollisionChecker {
                 entityBotRow = (entityBotWorldY + entity.speed) / gp.tileSize;
                 tileNum1 = gp.tileM.mapTileNum[entityLeftCol][entityBotRow];
                 tileNum2 = gp.tileM.mapTileNum[entityRightCol][entityBotRow];
-                if (gp.tileM.tile[tileNum1].collision == true || gp.tileM.tile[tileNum2].collision == true) {
+                if (gp.tileM.tile[tileNum1].collision || gp.tileM.tile[tileNum2].collision) {
                     entity.collisionOn = true;
                 }
             }
@@ -52,7 +50,7 @@ public class CollisionChecker {
                 entityLeftCol = (entityLeftWorldX - entity.speed) / gp.tileSize;
                 tileNum1 = gp.tileM.mapTileNum[entityLeftCol][entityTopRow];
                 tileNum2 = gp.tileM.mapTileNum[entityLeftCol][entityBotRow];
-                if (gp.tileM.tile[tileNum1].collision == true || gp.tileM.tile[tileNum2].collision == true) {
+                if (gp.tileM.tile[tileNum1].collision || gp.tileM.tile[tileNum2].collision) {
                     entity.collisionOn = true;
                 }
             }
@@ -60,74 +58,162 @@ public class CollisionChecker {
                 entityRightCol = (entityRightWorldX + entity.speed) / gp.tileSize;
                 tileNum1 = gp.tileM.mapTileNum[entityRightCol][entityTopRow];
                 tileNum2 = gp.tileM.mapTileNum[entityRightCol][entityBotRow];
-                if (gp.tileM.tile[tileNum1].collision == true || gp.tileM.tile[tileNum2].collision == true) {
+                if (gp.tileM.tile[tileNum1].collision || gp.tileM.tile[tileNum2].collision) {
                     entity.collisionOn = true;
                 }
             }
         }
-
     }
 
-    //check entity
-    public int checkEntity(Entity entity, Entity[] targets, boolean returnIndexIfPlayer) {
+    // --- OBJECT INTERACTION ---
+    public int checkObject(Entity entity, boolean player) {
         int index = 999;
-        String direction = entity.knockBack ? entity.knockBackDirection : entity.direction;
-        if (direction == null) return 999;
-        for (int i = 0; i < targets.length; i++) {
-            Entity target = targets[i];
-            if (target == null) {
-                continue;
-            }
-            if (target == entity) {
-                continue;
-            }
-            if (!target.collision) {
-                continue;
-            }
 
-            if (intersects(entity, target, direction, entity.speed)) {
-                entity.collisionOn = true;
-                if (returnIndexIfPlayer) {
-                    index = i;
+        for (int i = 0; i < gp.obj.length; i++) {
+            if (gp.obj[i] != null) {
+                Entity target = gp.obj[i];
+
+                // map local hitbox coords to absolute world position
+                int entityOriginalX = entity.hitBox.x;
+                int entityOriginalY = entity.hitBox.y;
+                int targetOriginalX = target.hitBox.x;
+                int targetOriginalY = target.hitBox.y;
+
+                entity.hitBox.x = entity.worldX + entity.hitBox.x;
+                entity.hitBox.y = entity.worldY + entity.hitBox.y;
+                target.hitBox.x = target.worldX + target.hitBox.x;
+                target.hitBox.y = target.worldY + target.hitBox.y;
+
+                // shift entity hitbox to prospective destination
+                switch (entity.direction) {
+                    case "up" -> entity.hitBox.y -= entity.speed;
+                    case "down" -> entity.hitBox.y += entity.speed;
+                    case "left" -> entity.hitBox.x -= entity.speed;
+                    case "right" -> entity.hitBox.x += entity.speed;
                 }
+
+                // flag collision if rectangles overlap
+                if (entity.hitBox.intersects(target.hitBox)) {
+                    if (target.collision) {
+                        entity.collisionOn = true;
+                    }
+                    if (player) {
+                        index = i;
+                    }
+                }
+
+                // restore relative coords to prevent displacement bugs
+                entity.hitBox.x = entityOriginalX;
+                entity.hitBox.y = entityOriginalY;
+                target.hitBox.x = targetOriginalX;
+                target.hitBox.y = targetOriginalY;
             }
         }
         return index;
     }
 
-    //check player
-    public boolean checkPlayer(Entity entity) {
-        String direction = entity.knockBack ? entity.knockBackDirection : entity.direction;
-        if (intersects(entity, gp.player, direction, entity.speed)) {
-            entity.collisionOn = true;
-            return true;
+    // --- ENTITY vs ENTITY ---
+    public int checkEntity(Entity entity, Entity[] targets) {
+        int index = 999;
+        for (int i = 0; i < targets.length; i++) {
+            if (targets[i] != null && targets[i] != entity) {
+                Entity target = targets[i];
+
+                int entityOriginalX = entity.hitBox.x;
+                int entityOriginalY = entity.hitBox.y;
+                int targetOriginalX = target.hitBox.x;
+                int targetOriginalY = target.hitBox.y;
+
+                entity.hitBox.x = entity.worldX + entity.hitBox.x;
+                entity.hitBox.y = entity.worldY + entity.hitBox.y;
+                target.hitBox.x = target.worldX + target.hitBox.x;
+                target.hitBox.y = target.worldY + target.hitBox.y;
+
+                switch (entity.direction) {
+                    case "up" -> entity.hitBox.y -= entity.speed;
+                    case "down" -> entity.hitBox.y += entity.speed;
+                    case "left" -> entity.hitBox.x -= entity.speed;
+                    case "right" -> entity.hitBox.x += entity.speed;
+                }
+
+                if (entity.hitBox.intersects(target.hitBox)) {
+                    entity.collisionOn = true;
+                    index = i;
+                }
+
+                entity.hitBox.x = entityOriginalX;
+                entity.hitBox.y = entityOriginalY;
+                target.hitBox.x = targetOriginalX;
+                target.hitBox.y = targetOriginalY;
+            }
+        }
+        return index;
+    }
+
+    public boolean checkEntity(Entity entity, Entity target) {
+        Entity[] targets = {target};
+        return checkEntity(entity, targets) != 999;
+    }
+
+    // --- COMBAT HITBOX ---
+    public boolean checkHit(Entity attacker, Entity defender) {
+        if (defender == null || !defender.alive || attacker == defender) {
+            return false;
+        }
+
+        // evaluate intersection between attack area and target hitbox
+        if (attacker instanceof LivingEntity livingAttacker) {
+            Rectangle attackArea = new Rectangle(
+                    livingAttacker.attackHitbox.x,
+                    livingAttacker.attackHitbox.y,
+                    livingAttacker.attackHitbox.width,
+                    livingAttacker.attackHitbox.height
+            );
+
+            Rectangle defenderArea = new Rectangle(
+                    defender.worldX + defender.hitBox.x,
+                    defender.worldY + defender.hitBox.y,
+                    defender.hitBox.width,
+                    defender.hitBox.height
+            );
+
+            return attackArea.intersects(defenderArea);
         }
         return false;
     }
 
-    //utility hitbox intersection tool
-    private boolean intersects(Entity e1, Entity e2, String direction, int speed) {
-        int e1Left = e1.worldX + e1.hitBox.x;
-        int e1Top = e1.worldY + e1.hitBox.y;
-        int e1Right = e1Left + e1.hitBox.width;
-        int e1Bottom = e1Top + e1.hitBox.height;
+    public boolean checkPlayer(Entity entity) {
+        boolean contactPlayer = false;
 
-        int e2Left = e2.worldX + e2.hitBox.x;
-        int e2Top = e2.worldY + e2.hitBox.y;
-        int e2Right = e2Left + e2.hitBox.width;
-        int e2Bottom = e2Top + e2.hitBox.height;
+        int entityOriginalX = entity.hitBox.x;
+        int entityOriginalY = entity.hitBox.y;
+        int playerOriginalX = gp.player.hitBox.x;
+        int playerOriginalY = gp.player.hitBox.y;
 
-        switch (direction) {
-            case "up" ->
-                e1Top -= speed;
-            case "down" ->
-                e1Bottom += speed;
-            case "left" ->
-                e1Left -= speed;
-            case "right" ->
-                e1Right += speed;
+        entity.hitBox.x = entity.worldX + entity.hitBox.x;
+        entity.hitBox.y = entity.worldY + entity.hitBox.y;
+
+        gp.player.hitBox.x = gp.player.worldX + gp.player.hitBox.x;
+        gp.player.hitBox.y = gp.player.worldY + gp.player.hitBox.y;
+
+        // check intersection using predicted player position
+        switch (entity.direction) {
+            case "up" -> entity.hitBox.y -= entity.speed;
+            case "down" -> entity.hitBox.y += entity.speed;
+            case "left" -> entity.hitBox.x -= entity.speed;
+            case "right" -> entity.hitBox.x += entity.speed;
         }
 
-        return e1Right > e2Left && e1Left < e2Right && e1Bottom > e2Top && e1Top < e2Bottom;
+        if (entity.hitBox.intersects(gp.player.hitBox)) {
+            entity.collisionOn = true;
+            contactPlayer = true;
+        }
+
+        entity.hitBox.x = entityOriginalX;
+        entity.hitBox.y = entityOriginalY;
+        gp.player.hitBox.x = playerOriginalX;
+        gp.player.hitBox.y = playerOriginalY;
+
+        return contactPlayer;
     }
 }
